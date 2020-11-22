@@ -36,21 +36,6 @@ for num in range(100, 201):
         # print('%d 是一个质数 ' % num)
         pass
 
-# 嵌套循环写在一行
-x = [1, 2, 3, 4]
-y = [5, 6, 7, 8]
-res = [a + b for a in x for b in y if a % 2 == 0 and b % 2 == 0]
-# 相当于
-for a in x:
-    for b in y:
-        if a % 2 == 0 and b % 2 == 0:
-            print(a + b, end=' ')
-print()
-
-# if
-list_a = [1, 2, 3, 4, 5, 6, 7, 8]
-res = [x ** 2 for x in list_a if x % 2 == 0]
-print(res)
 
 # while
 i = 0

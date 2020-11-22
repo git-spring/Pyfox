@@ -53,7 +53,19 @@ num.sort()  # 正序
 num.sort(reverse=True)  # 倒序
 print(num)
 
+# 列表推导式
+nums = [i*2 for i in range(10)]
+print(nums)
 
+x = [1, 2, 3, 4]
+y = [5, 6, 7, 8]
+res = [a + b for a in x for b in y if a % 2 == 0 and b % 2 == 0]
+# 相当于
+for a in x:
+    for b in y:
+        if a % 2 == 0 and b % 2 == 0:
+            print(a + b, end=' ')
+print()
 
 # 列表切片
 # 列表的切片和str的切片一样
