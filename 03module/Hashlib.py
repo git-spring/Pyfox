@@ -3,4 +3,4 @@
 import hashlib
 import hmac
 
-# todo :
+# 加密用的模块

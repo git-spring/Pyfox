@@ -24,5 +24,12 @@ sys.stdout.writeline('bbbb') # 无换行输出
 # 错误输出
 sys.stderr.write('')
 
+# 输出重定向   # 对应的内容会输出到文件中
+# sys.stdin = open('../star/stdin.txt','w',encoding='utf8')      # 从文件输入
+sys.stdout = open('../star/stdout.txt','w',encoding='utf8')
+print('stdout output 标准输出')
+sys.stderr = open('../star/stderr.txt','w',encoding='utf8')
+print(1/0)
+
 # 退出程序,指定状态码
 sys.exit(0)
