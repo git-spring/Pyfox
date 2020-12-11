@@ -15,7 +15,7 @@
     这种调用方式  d.__iter__().__next__()  也是一个迭代过程，只是一次调用只会迭代一次，不会一直迭代
 """
 
-
+# 可迭代对象
 class demo:
 
     def __init__(self, count):
@@ -27,7 +27,7 @@ class demo:
         # return self  # 可以返回自身
 
 
-# 可迭代对象
+# 迭代器
 class MyIter:
     start = 0
 
