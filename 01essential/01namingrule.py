@@ -2,7 +2,7 @@
 
 """
 1.项目名称
-首字母大写+大写式驼峰,
+首字母大写+大写式驼峰
 ProjectName
 
 2.模块名和包名
@@ -11,7 +11,7 @@ module_name
 package_name
 
 3.类名称,异常
-首字母大写+大写式驼峰,
+首字母大写+大写式驼峰
 class ClassName:
 ExceptionName
 
