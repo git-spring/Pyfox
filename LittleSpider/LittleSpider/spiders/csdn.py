@@ -1,4 +1,4 @@
-import scrapy,virtualenv
+import scrapy
 
 
 class CsdnSpider(scrapy.Spider):
