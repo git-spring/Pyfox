@@ -67,7 +67,7 @@ for i in d:
 
 
 # 判断一个对象是不是可迭代对象/迭代器
-from collections import Iterable, Iterator
+from collections.abc import Iterable, Iterator
 
 print(isinstance(d, Iterable))
 print(isinstance(d, Iterator))
