@@ -79,7 +79,7 @@ def editequpvf(path):
         file.write(filedata)
         file.close()
 
-
+# 读取装备列表
 def readEquipmentList():
     file_name = 'Script/stackable.lst'
     path_prefix = 'Script/stackable/'
