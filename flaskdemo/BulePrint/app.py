@@ -1,7 +1,7 @@
 
 
 from flask import Flask
-from FlaskDemo.BulePrint import admin, user
+from flaskdemo.BulePrint import admin, user
 
 app = Flask(__name__)
 

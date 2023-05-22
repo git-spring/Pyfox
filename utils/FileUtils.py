@@ -16,9 +16,5 @@ def get_file_list(path):
 
 
 
-# 文件重命名
-def rename():
-    pass
-
 
 

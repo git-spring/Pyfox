@@ -4,7 +4,7 @@
 
 from flask import Flask,Response
 
-from FlaskDemo import settings
+from flaskdemo import settings
 
 app = Flask(__name__)
 print(__name__)
