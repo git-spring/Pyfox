@@ -2,7 +2,6 @@
 
 import os
 
-
 # 使用递归获取指定目录下的全部文件
 def get_file_list(path):
     file_list = []

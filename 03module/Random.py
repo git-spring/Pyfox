@@ -2,8 +2,6 @@
 
 import random
 
-
-
 # 生成[0,1)之间的随机浮点数
 random.random()
 # 生成指定数之间的随机浮点数
