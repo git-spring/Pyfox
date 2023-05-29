@@ -6,7 +6,7 @@
 
 import re
 import os
-import utils.FileUtils as fileUtils
+import utils.fileutils as fileUtils
 
 
 # 获取每一个标签的名称
@@ -33,19 +33,18 @@ def edit_skill_pvf():
             while line:
                 counter1 = 0  # 计数
                 counter2 = 0  # 计数
+                counter3 = 0  # 计数  用于修改技能所需sp
                 tmp_label = get_lable(line)
                 if tmp_label == "skill class":
                     counter1 += 1  # 如果标签为 skill class 则+1,目的使修改下一行的值
                     text = text + line
                     line = file.readline()
-
+                if counter1 == 1:
+                    line = "\t4\n"
                 if tmp_label == "growtype maximum level" or tmp_label == "second growtype maximum level":
-                    print("------------------")
                     counter2 += 1
                     text = text + line
                     line = file.readline()
-                if counter1 == 1:
-                    line = "\t4\n"
                 if counter2 == 1:
                     line_list = line.split("\t")
                     len = line_list.__len__()
@@ -58,7 +57,6 @@ def edit_skill_pvf():
                         if num == len:
                             temp_line = temp_line + "\n"
                     line = temp_line
-                    print(line)
 
                 text = text + line
                 line = file.readline()
@@ -81,12 +79,13 @@ def edit_skilltree_pvf():
     co_file = fileUtils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\clientonly\\skilltree")
     for i in co_file:
         file_name = os.path.basename(i)
-        if (file_name=="creator_sp.co"       # 这些不做处理 宠物)
-                or file_name=="demonicswordman_sp.co"   # 黑暗武士
-                or file_name=="thief_sp.co"     # 暗夜刺客
-                or file_name=="thief_tp.co"
-                or file_name=="atmage_sp.co"    # 男魔法师
-                or file_name == "atmage_tp.co"):
+        if (file_name == "creator_sp.co"  # 这些不做处理 宠物)
+                or file_name == "demonicswordman_sp.co"  # 黑暗武士
+                # or file_name=="thief_sp.co"     # 暗夜刺客
+                # or file_name=="thief_tp.co"
+                # or file_name=="atmage_sp.co"    # 男魔法师
+                # or file_name == "atmage_tp.co"
+        ):
             continue
         print("开始处理：" + i)
         with open(i, 'r', encoding='UTF-8') as file:
@@ -117,22 +116,27 @@ def edit_skilltree_pvf():
                     line = file.readline()
                     continue
                 if counter1 > 2 and (not "`" in line and not "character job" in line):
-                    text2 = text2 +line
+                    text2 = text2 + line
                 line = file.readline()
         lable = '''[/character job]
 
 [character job]\n'''
         lable1 = '''[/character job]\n'''
-        file_data =text+ caree_dict[3]  +caree_dict[4] +text2 + lable \
-                    + caree_dict[5] + caree_dict[6] +text2 + lable \
-                    + caree_dict[7] + caree_dict[8] + text2 + lable \
-                    + caree_dict[9] + caree_dict[10] + text2 + lable1
+
+        max_num = max(caree_dict.keys())
+        if max_num == 10:  # 可转职4个职业时
+            file_data = text + caree_dict[3] + caree_dict[4] + text2 + lable \
+                        + caree_dict[5] + caree_dict[6] + text2 + lable \
+                        + caree_dict[7] + caree_dict[8] + text2 + lable \
+                        + caree_dict[9] + caree_dict[10] + text2 + lable1
+        if max_num == 6:  # 可转职2个职业时
+            file_data = text + caree_dict[3] + caree_dict[4] + text2 + lable \
+                        + caree_dict[5] + caree_dict[6] + text2 + lable1
+
         file = open(i, 'w', encoding='utf-8')
         file.write(file_data)
         print(file_data)
         print("处理完成：" + i)
-
-
 
 
 if '__main__' == __name__:
