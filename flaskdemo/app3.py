@@ -34,12 +34,12 @@ def index2():
 def index3():
     url = url_for('url_tag')  # 会找到endpoint 为 url_tag 的视图函数的url
     print(url)
-    return redirect(url)   # 重定向
+    return redirect(url)  # 重定向
 
-@app.route('/app3/url_for',methods=['post', 'get'],endpoint='url_tag')
+
+@app.route('/app3/url_for', methods=['post', 'get'], endpoint='url_tag')
 def index4():
     return 'url_for() 会把一个标签和url进行映射, 查找标签就会找到对应的url'
-
 
 
 if __name__ == '__main__':

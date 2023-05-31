@@ -2,7 +2,7 @@
 # 使用配置变量,引入配置环境
 # url路径中加入参数
 
-from flask import Flask,Response
+from flask import Flask, Response
 
 from flaskdemo import settings
 
@@ -18,6 +18,8 @@ print(app.config)
 
 # 导入配置文件
 app.config.from_object(settings)
+
+
 # app.config.from_pyfile('settings.py')
 
 # 这些函数称为视图函数

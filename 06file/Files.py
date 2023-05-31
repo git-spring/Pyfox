@@ -2,15 +2,14 @@
 # open() 函数用于打开一个文件,创建一个 file 对象,相关的方法才可以调用它进行读写
 
 
-context = open('../star/test.txt','r',encoding='utf8')
+context = open('../star/test.txt', 'r', encoding='utf8')
 print(context.read())
 
-context = open('../star/test.txt','w')
+context = open('../star/test.txt', 'w')
 context.write('writefiles')
 
-context = open('../star/test.txt','a')
+context = open('../star/test.txt', 'a')
 context.write('appendfiles')
-
 
 # 文件的打开方式
 """
@@ -23,4 +22,3 @@ context.write('appendfiles')
     rb : 以二进制的形式读取
     rw : 以二进制的形式写入
 """
-

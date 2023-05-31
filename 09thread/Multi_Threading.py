@@ -18,9 +18,9 @@ class ThreadTest(threading.Thread):
     def run(self):
         print("%s正在运行中......" % self.name)
 
-for i in range(10):
-    ThreadTest("09thread-" + str(i)).start()   # 启动线程
 
+for i in range(10):
+    ThreadTest("09thread-" + str(i)).start()  # 启动线程
 
 
 # 实例化threading.Thread对象来创建多线程
@@ -39,4 +39,3 @@ t2 = threading.Thread(target=test2)
 
 t1.start()
 t2.start()
-

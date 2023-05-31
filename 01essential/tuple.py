@@ -7,8 +7,8 @@ tup = tuple([1, 2, 3, 4, 5])  # 把 可迭代对象 转化成 元组
 print(tup)
 
 # 如果元组只有一个元素,需要添加逗号
-tup = ('1')    # <class 'int'>
-tup = (1,)    # <class 'tuple'>
+tup = ('1')  # <class 'int'>
+tup = (1,)  # <class 'tuple'>
 
 # 通过下标获取元素
 ele = tup[0]
@@ -17,9 +17,6 @@ print(ele)
 # 其它方法
 tup.index('X')
 tup.count('x')
-
-
-
 
 # 不可以修改,增加,删除
 ## tup[1] = 5  # 元组是不可变元素, 不可以修改

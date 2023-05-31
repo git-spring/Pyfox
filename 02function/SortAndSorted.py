@@ -24,7 +24,6 @@ alpha = ['shwa', 'shore', 'show', 'shower', 'shoes', 'shanghai', 'aspire']
 alpha.sort(key=len)  # 如果是对元组等不可变序列，只能使用sorted
 alpha1 = sorted(alpha, key=len)
 
-
 # 对字典排序
 person = {'name': 'lisi', 'age': 20, 'gender': 'female'}
 person1 = sorted(person)  # 默认对字典中的key的ascii进行排序

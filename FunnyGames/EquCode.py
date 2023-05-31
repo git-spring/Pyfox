@@ -79,6 +79,7 @@ def editequpvf(path):
         file.write(filedata)
         file.close()
 
+
 # 读取装备列表
 def readEquipmentList():
     file_name = 'Script/stackable.lst'
@@ -91,7 +92,7 @@ def readEquipmentList():
         while id and path:
             skip = False
 
-            if path.find('avatar') > -1 or path.find('at_avatar')> -1 :  # avatar 时装 character 人物(非宠物)  不需要修改
+            if path.find('avatar') > -1 or path.find('at_avatar') > -1:  # avatar 时装 character 人物(非宠物)  不需要修改
                 skip = True
             if not os.path.exists(path) or continueuntil or skip:
                 id = file_obj.readline().replace('\n', '')

@@ -12,7 +12,8 @@ def index():
     full_name = 'lisi'
     age = 25
     customers = ['穆', '襄', '惠', '武']
-    return render_template('show.html', name=full_name, age=age, gender='male',customers=customers)  # 在模板中用{{name}} 获取数据
+    return render_template('show.html', name=full_name, age=age, gender='male',
+                           customers=customers)  # 在模板中用{{name}} 获取数据
 
 
 if __name__ == '__main__':

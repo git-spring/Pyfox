@@ -11,6 +11,7 @@
 
 class Person1:
     age = 19
+
     def test(self, name):
         print('这是个实例方法')
         print(name)
@@ -20,8 +21,6 @@ class Person1:
 p1 = Person1()
 p1.test('zhangsan')  # 通过实例对象调用,self参数不需要传递
 Person1.test(p1, 'zhangsan')  # 通过类调用,需要手动传入对象
-
-
 
 """
 静态方法
@@ -44,9 +43,8 @@ class Person2:
 
 
 p2 = Person2()
-Person2.test()    # 通过类调用
-p2.test()         # 通过实例调用
-
+Person2.test()  # 通过类调用
+p2.test()  # 通过实例调用
 
 """
 类方法
@@ -60,18 +58,20 @@ p2.test()         # 通过实例调用
     调用时不需要传递cls参数
 """
 
-class Person3:
 
+class Person3:
     race = 'human'
 
     @classmethod
     def test(cls):
-        print(cls.race)    # 类方法可以访问类属性
+        print(cls.race)  # 类方法可以访问类属性
         print('这是个类方法')
 
     def test1(self):
         # print(race)     # 实例方法不能访问类属性
         pass
+
+
 p3 = Person3()
 p3.test()
 Person3.test()

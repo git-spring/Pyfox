@@ -13,7 +13,17 @@ def get_file_list(path):
             file_list.extend(get_file_list(full_path))
     return file_list
 
+def tolower():
+    path="D:\\code\\Pyfox\\"
+    file_list = get_file_list(path)
+    print(file_list)
+    for i in file_list:
+        if i.lower().endswith(".py"):
+            base_name = os.path.basename(i)
+            directory = os.path.dirname(i)
+            new_name = directory+"\\"+base_name.lower()
+            print(new_name)
+            os.rename(i,new_name)
 
-
-
-
+if __name__ == '__main__':
+    pass

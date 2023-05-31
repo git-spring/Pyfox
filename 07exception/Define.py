@@ -14,27 +14,22 @@
 """
 
 
-def div(a,b):
-    return a/b
+def div(a, b):
+    return a / b
 
-var  = [1,2,3,4,5,6,7]
+
+var = [1, 2, 3, 4, 5, 6, 7]
 
 try:
-    x =div(5,1)
+    x = div(5, 1)
     y = var[10]
 except ZeroDivisionError as e:
     print('[ERROR] ------ 除0错误')
 except IndexError as e:
     print('[ERROR] ------ 索引越界')
-except (ZeroDivisionError,IndexError) as e:   # 可以使用一个元组来捕获多个异常
+except (ZeroDivisionError, IndexError) as e:  # 可以使用一个元组来捕获多个异常
     pass
 else:
-    print(x,y)
+    print(x, y)
 finally:
     print('最后运行的代码')
-
-
-
-
-
-

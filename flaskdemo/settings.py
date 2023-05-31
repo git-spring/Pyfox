@@ -1,4 +1,4 @@
 # 配置环境
 
-ENV='development'
-DEBUG=True
+ENV = 'development'
+DEBUG = True

@@ -14,8 +14,10 @@ def func_name2(name):
 # 函数内部也可以定义函数
 def outer():
     x = 1
+
     def inner():
         print('this is a inner function')
+
 
 # 调用函数
 func_name1()

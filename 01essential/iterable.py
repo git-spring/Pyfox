@@ -15,6 +15,7 @@
     这种调用方式  d.__iter__().__next__()  也是一个迭代过程，只是一次调用只会迭代一次，不会一直迭代
 """
 
+
 # 可迭代对象
 class demo:
 
@@ -51,6 +52,7 @@ class MyIter:
         finally:
             if flag:
                 raise StopIteration
+
 
 d = demo(6)
 # for 循环就是调用迭代的方法 __iter__()   __next__()

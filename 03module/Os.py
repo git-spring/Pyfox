@@ -4,7 +4,6 @@
 import os
 import stat
 
-
 # 查看正在使用的工作平台
 os.name
 # 查看当前所在路径
@@ -23,15 +22,13 @@ os.mkdir('test')
 # 创建多层目录
 os.makedirs('abc/test')
 # 重命名文件
-os.rename('test.py','Test1.py')
+os.rename('test.py', 'Test1.py')
 # 改变当前工作目录
 os.chdir('..')
 # 查看文件属性
 os.stat('Test1.py')
 # 修改文件权限
-os.chmod('Test1.py',stat.S_IWOTH)
-
-
+os.chmod('Test1.py', stat.S_IWOTH)
 
 ## os.path
 
@@ -40,11 +37,11 @@ os.path.split('E:\\05pythonProject\Pyfox\\03module\Test.py')  # ('E:\\05pythonPr
 # 将文件路径和文件扩展名分割成一个元组
 os.path.splitext('E:\\05pythonProject\Pyfox\\03module\Test.py')  # ('E:\\05pythonProject\\Pyfox\\03module\\test', '.py')
 # 返回路径的目录部分
-dirname = os.path.dirname('E:\\05pythonProject\Pyfox\\03module\Test.py')   # E:\05pythonProject\Pyfox\03module
+dirname = os.path.dirname('E:\\05pythonProject\Pyfox\\03module\Test.py')  # E:\05pythonProject\Pyfox\03module
 # 返回路径的文件名部分
-basename = os.path.basename('E:\\05pythonProject\Pyfox\\03module\Test.py')   # test.py
+basename = os.path.basename('E:\\05pythonProject\Pyfox\\03module\Test.py')  # test.py
 # 将文件路径和文件名凑成完整文件路径
-os.path.join(dirname,basename)
+os.path.join(dirname, basename)
 # 获取文件的绝对路径
 os.path.abspath('test.py')
 # 判断是否是绝对路径
@@ -57,4 +54,3 @@ os.path.isdir('../03module')
 os.path.isfile('test.py')
 # 返回文件大小
 os.path.getsize('test.py')
-

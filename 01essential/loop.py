@@ -36,7 +36,6 @@ for num in range(100, 201):
         # print('%d 是一个质数 ' % num)
         pass
 
-
 # while
 i = 0
 while i < 5:

@@ -4,7 +4,7 @@
 # 1. 直接导入整个模块
 import time
 # 2. from 模块名 import 函数名/变量   只导入模块中的函数/变量 (可以导入多个)
-from random import randint,choice
+from random import randint, choice
 # 3. from 模块名 import *       导入模块中所有的方法和变量
 from math import *
 # 4. 导入模块并起一个别名

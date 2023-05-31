@@ -10,10 +10,12 @@
     *iter: 可迭代对象
 """
 
+
 def add(a):
     return a * 2
 
-res = map(add, [1, 2, 3,4,5,6])
+
+res = map(add, [1, 2, 3, 4, 5, 6])
 print(list(res))  # map 对象,可以转换成list输出
 
 """
@@ -29,13 +31,14 @@ print(list(res))  # map 对象,可以转换成list输出
 """
 from functools import reduce
 
-def add(a,b):
+
+def add(a, b):
     return a + b
 
-x = [1,2,4,7,8]
-res = reduce(add,x)
-print(res)
 
+x = [1, 2, 4, 7, 8]
+res = reduce(add, x)
+print(res)
 
 '''
 # filter
@@ -45,10 +48,13 @@ print(res)
     
 把符合要求的数据过滤出来
 '''
-def fil(x):
-    return x>5
 
-res = filter(fil,range(9))
+
+def fil(x):
+    return x > 5
+
+
+res = filter(fil, range(9))
 print(list(res))
 
 """
@@ -59,7 +65,7 @@ print(list(res))
     
 获取一个容器中的最大值,可以自定义比较规则
 """
-res = max(['apple','pear','orange'],key = lambda x:len(x))
+res = max(['apple', 'pear', 'orange'], key=lambda x: len(x))
 print(res)
 
 """
@@ -70,7 +76,7 @@ print(res)
 
 获取最小值,与max的使用方法类似
 """
-res = min(['apple','pear','orange'],key = lambda x:len(x))
+res = min(['apple', 'pear', 'orange'], key=lambda x: len(x))
 print(res)
 
 """

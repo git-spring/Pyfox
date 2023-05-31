@@ -14,8 +14,9 @@ def my_generator(num):
     now = 0
     while now < num:
         var = yield now  # 返回当前迭代值
-        now = now + 1 if var is None else var   # var 为 None,迭代值自增1,否则重新设定当前迭代值为 var
+        now = now + 1 if var is None else var  # var 为 None,迭代值自增1,否则重新设定当前迭代值为 var
         # now += 1
+
 
 gen = my_generator(10)
 next(gen)

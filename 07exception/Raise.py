@@ -6,15 +6,15 @@
 class Person:
     pass
 
+
 try:
 
     obj = Person()
     if obj is None:
         print('对象是None')
-        raise NameError('Name not found globally.')      # 手动抛出异常
+        raise NameError('Name not found globally.')  # 手动抛出异常
     print('{} 初始化成功! '.format(obj))
-except TypeError as et:      # 这里可以捕获其它异常
+except TypeError as et:  # 这里可以捕获其它异常
     print('ERROR %$#^&*@#%')
 finally:
     print('代码结束')
-

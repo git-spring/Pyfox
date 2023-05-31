@@ -1,5 +1,6 @@
 # 闭包
 import time
+
 """
 在一个外部函数中定义了一个内部函数,当内部函数引用了外部函数的变量,
 并且外部函数的返回值是内部函数的引用,这个时候被引用的变量和内部函数就组成一个闭包
@@ -19,6 +20,7 @@ import time
 
 """
 
+
 # 创建闭包
 # 变量name 和内部函数 inner 组成一个闭包
 # age 没有被内部函数引用，所以不组成闭包
@@ -26,13 +28,16 @@ import time
 def outer():
     name = 'python'
     age = 19
+
     def inner():
         print(name)
+
     print(inner.__closure__)
     return inner
 
+
 outer()
-outer()()    # 先执行外部函数，再执行内部函数
+outer()()  # 先执行外部函数，再执行内部函数
 
 
 # 闭包的应用
@@ -40,22 +45,25 @@ outer()()    # 先执行外部函数，再执行内部函数
 # 装饰器的使用
 def outer(fn):
     print('外部函数被调用')
+
     def inner():
         start = time.time()
         fn()
         end = time.time()
         print('内部函数被调用')
-        print('代码耗时 %d s '% (end-start))
+        print('代码耗时 %d s ' % (end - start))
+
     return inner
 
 
-@outer       #  @outer会做两件事 1.调用outer函数，2. 把被装饰的函数传递给fn (outer(fn)中的fn)
+@outer  # @outer会做两件事 1.调用outer函数，2. 把被装饰的函数传递给fn (outer(fn)中的fn)
 def test():
     print('被装饰的函数')
     x = 0
-    for i in range(1,10000000):
-        x+=1
+    for i in range(1, 10000000):
+        x += 1
     print(x)
+
 
 test()
 

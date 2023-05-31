@@ -8,52 +8,52 @@
 然后调用__init__ 进行实例的初始化
 
 """
+
+
 class Student:
     _instance = None
     flag = True
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance=super().__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self,name,age):
+    def __init__(self, name, age):
         # 如果不希望初始化时被覆盖，也可以是不是第一次实例化
         if self.flag:
             self.name = name
             self.age = age
-            self.flag=False
+            self.flag = False
 
-s1 = Student('zhangsan',10)
-s2 = Student('lisi',20)
-print(s1==s2)
+
+s1 = Student('zhangsan', 10)
+s2 = Student('lisi', 20)
+print(s1 == s2)
 print(s1.name)
 
 
 # 2. 使用装饰器
 
 def singleton(cls):
-    instance = {}    # <class 'dict'>
+    instance = {}  # <class 'dict'>
+
     def wapper(*args, **kwargs):
         if cls not in instance:
             instance[cls] = cls()
         return instance[cls]
+
     return wapper
+
 
 @singleton
 class ABC:
     pass
 
+
 a1 = ABC()
 a2 = ABC()
-print(a1==a2)
-
-
-
-
-
-
-
-
+print(a1 == a2)
 
 # 3. 使用模块
 """
@@ -66,5 +66,3 @@ import star.Singleton as s1
 import star.Singleton as s2
 
 print(s1.p == s2.p)  # True  多次导入,两个对象是一样的
-
-

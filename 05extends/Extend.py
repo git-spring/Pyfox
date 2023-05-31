@@ -8,10 +8,10 @@ class A(object):
 
 
 class B(A):
-    def __init__(self, name, age,school):
-        A.__init__(self,name,age)
-        self.school=school
-        super(B, self).__init__(name,age)
+    def __init__(self, name, age, school):
+        A.__init__(self, name, age)
+        self.school = school
+        super(B, self).__init__(name, age)
 
 
 class C(A):
