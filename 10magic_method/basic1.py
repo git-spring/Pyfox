@@ -1,6 +1,7 @@
 # python 中基本的魔术方法
 
 #  __new__ ,__init__,__del__,__call__
+
 class Test:
 
     def __new__(cls, *args, **kwargs):

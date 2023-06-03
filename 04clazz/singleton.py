@@ -62,7 +62,7 @@ print(a1 == a2)
     所以把相关的代码定义在模块中,就可以获得单例对象
 
 """
-import star.Singleton as s1
-import star.Singleton as s2
+import star.singleton as s1
+import star.singleton as s2
 
 print(s1.p == s2.p)  # True  多次导入,两个对象是一样的

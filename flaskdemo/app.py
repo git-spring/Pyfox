@@ -2,6 +2,7 @@
 # 使用配置变量,引入配置环境
 # url路径中加入参数
 
+
 from flask import Flask, Response
 
 from flaskdemo import settings

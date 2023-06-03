@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 
 
+
 # 通过模板引擎传递数据到模板中
 @app.route('/app4/show')
 def index():

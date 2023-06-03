@@ -1,5 +1,6 @@
 # __len__,__repr__,__str__
 
+
 class Test:
     def __init__(self, *args):
         self.name = args[0]

@@ -1,5 +1,6 @@
 # python 中与属性相关的魔术方法
-# __getattr__,
+# __getattr__
+
 
 class Test:
 

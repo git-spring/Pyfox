@@ -6,6 +6,7 @@ from werkzeug.utils import redirect
 
 app = Flask(__name__)  # type:Flask
 
+
 app.config.from_pyfile('settings.py')
 
 users = []
