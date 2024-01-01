@@ -1,8 +1,6 @@
 # 人偶
 
 import re
-import os
-import utils.fileutils as fileUtils
 
 
 # 获取每一个标签的名称
@@ -16,7 +14,7 @@ def get_lable(line):
 
 # 修改人偶的冷却时间和可使用等级
 def edit_puppet_pvf():
-    skl_file = fileUtils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\stackable\\professional\\puppet\\")
+    skl_file = fileutils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\stackable\\professional\\puppet\\")
     for i in skl_file:
         print("开始处理：" + i)
         with open(i, 'r', encoding='UTF-8') as file:

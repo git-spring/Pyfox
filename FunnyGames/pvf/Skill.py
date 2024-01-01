@@ -6,7 +6,6 @@
 
 import re
 import os
-import utils.fileutils as fileUtils
 
 
 # 获取每一个标签的名称
@@ -22,7 +21,7 @@ def get_lable(line):
 # 使skill class标签为4
 # 使growtype maximum level 和 second growtype maximum level 标签的值都为当前的最大值
 def edit_skill_pvf():
-    skl_file = fileUtils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\")
+    skl_file = fileutils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\")
     for i in skl_file:
         if not i.endswith(".skl"):  # 只处理 .skl 结尾的文件
             continue
@@ -39,8 +38,8 @@ def edit_skill_pvf():
                     counter1 += 1  # 如果标签为 skill class 则+1,目的使修改下一行的值
                     text = text + line
                     line = file.readline()
-                if counter1 == 1:
-                    line = "\t4\n"
+                # if counter1 == 1:
+                #     line = "\t4\n"
                 if tmp_label == "growtype maximum level" or tmp_label == "second growtype maximum level":
                     counter2 += 1
                     text = text + line
@@ -76,7 +75,7 @@ def get_position(line):
 
 # 修改技能树
 def edit_skilltree_pvf():
-    co_file = fileUtils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\clientonly\\skilltree")
+    co_file = fileutils.get_file_list("C:\\Users\\Spring\\Desktop\\Script\\clientonly\\skilltree")
     for i in co_file:
         file_name = os.path.basename(i)
         if (file_name == "creator_sp.co"  # 这些不做处理 宠物)
@@ -106,11 +105,20 @@ def edit_skilltree_pvf():
                     position_x = position_list[3]
                     position_y = position_list[4]  # 因为前面有3个\t，下标4为第二个数字
                     if counter1 == 6:
-                        position_y = int(position_y) + 1000
+                        if i.endswith("_sp.co"):   # sp技能
+                            position_y = int(position_y) + 1000
+                        elif(i.endswith("_tp.co")): # tp特性技能
+                            position_y = int(position_y) + 200
                     if counter1 == 8:
-                        position_y = int(position_y) + 2000
+                        if i.endswith("_sp.co"):   # sp技能
+                            position_y = int(position_y) + 2000
+                        elif(i.endswith("_tp.co")): # tp特性技能
+                            position_y = int(position_y) + 400
                     if counter1 == 10:
-                        position_y = int(position_y) + 3000
+                        if i.endswith("_sp.co"):   # sp技能
+                            position_y = int(position_y) + 3000
+                        elif(i.endswith("_tp.co")): # tp特性技能
+                            position_y = int(position_y) + 600
                     line = "\t\t\t" + str(position_x) + "\t" + str(position_y).rstrip("\n") + "\n"
                     text2 = text2 + line
                     line = file.readline()
@@ -124,6 +132,7 @@ def edit_skilltree_pvf():
         lable1 = '''[/character job]\n'''
 
         max_num = max(caree_dict.keys())
+        file_data=""
         if max_num == 10:  # 可转职4个职业时
             file_data = text + caree_dict[3] + caree_dict[4] + text2 + lable \
                         + caree_dict[5] + caree_dict[6] + text2 + lable \
