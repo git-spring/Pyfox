@@ -15,7 +15,7 @@ pygame.display.set_caption('load image')  # 设置窗口名称
 # 显示文字
 # 创建字体文件对象
 # font = pygame.sysfont.Font()  # 系统字体
-font = pygame.font.Font('./ttf/FZQTJW.TTF', 50)
+font = pygame.font.Font('../ttf/FZQTJW.TTF', 50)
 text = font.render('一行汉字', True, (255, 255, 255), (155, 125, 0))  # (文字内容,抗锯齿,文字颜色,背景颜色)
 screen.blit(text, (0, 0))  # 显示文字 (文字内容,(位置))
 

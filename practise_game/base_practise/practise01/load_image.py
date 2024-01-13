@@ -14,7 +14,7 @@ white = 255, 255, 255
 
 screen.fill(white)
 
-image = pygame.image.load('../pig.png')  # 加载图片
+image = pygame.image.load('../../pig.png')  # 加载图片
 # 1
 image1 = pygame.transform.scale(image, (100, 100))  # 缩放图片(目标,(宽,高))
 screen.blit(image1, (0, 0))  # 显示图片(目标,(目标位置))
