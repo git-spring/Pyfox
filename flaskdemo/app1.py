@@ -3,8 +3,6 @@
 
 from flask import Flask, Response, make_response, request
 import json
-
-
 app = Flask(__name__)
 
 # 导入配置文件

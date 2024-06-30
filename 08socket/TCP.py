@@ -2,7 +2,6 @@
 
 import socket
 
-
 # 客户端
 # 创建socket
 skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

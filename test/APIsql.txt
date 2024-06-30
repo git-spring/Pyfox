@@ -1,0 +1,2588 @@
+create or replace procedure p_tra_profit ( p_date date , p_flag varchar2:='1' )  as
+  v_date number ; 
+  v_date_1 number ; 
+  v_date_2 number ; 
+  v_flag varchar2 ( 10 )  ; 
+  v_id number ; 
+  v_finish_flag char ( 1 )  ; 
+  v_pre_data_finish_flag char ( 1 )  ;   --20190412
+begin
+ IF is_trd_date ( p_date-1 ) ='Y' THEN
+  execute immediate 'alter session set PARALLEL_FORCE_LOCAL=true' ; 
+  v_date:=to_number ( to_char ( p_date , 'yyyymmdd' )  )  ; 
+  v_date_1:=get_trd_date_by_num_wd ( v_date , -1 )  ;   --函数改用万得交易日表0190412
+  v_date_2:=get_trd_date_by_num_wd ( v_date , -2 )  ;   --函数改用万得交易日表0190412
+  v_flag:=p_flag ; 
+  v_finish_flag:='N' ; 
+  v_pre_data_finish_flag:='N' ;  --20190412
+  select seq_log_id.nextval into v_id from dual ; 
+  insert into axuser_prf_log ( id , proc_name , in_date , in_flag , trd_date , start_time , pre_data , tra_share , pro_tra_flow , pro_tra_prf , all_tra_flow , all_tra_prf , mts_share , pro_mts_flow , pro_mts_prf , all_mts_flow , all_mts_prf , opt_share , all_opt_flow , all_opt_prf , finish_time , finish_flag ) 
+  values ( v_id , 'p_tra_profit' , v_date , v_flag , v_date_1 , sysdate , null , null , null , null , null , null , null , null , null , null , null , null , null , null , null , v_finish_flag )  ; 
+  COMMIT ; 
+  insert into axuser_prf_pre_data_log ( id , proc_name , in_date , in_flag , trd_date , start_time , exch_rate_v0 , wfd_stockcoding_v0 , stock_sell_v0 , secu_divide_info_v0 , new_stock_sh_v0 , mkt_info_new_v0 , secu_price_v0 , merge_sql , fund_nav_date_1 , fund_nav_v0 , pre_data_finish_flag ) 
+  values ( v_id , 'p_tra_profit' , v_date , v_flag , v_date_1 , sysdate , null , null , null , null , null , null , null , null , null , null , v_pre_data_finish_flag )  ; 
+  COMMIT ;   --20190412
+  if v_flag is null then
+     v_flag:='1' ; 
+  end if ; 
+
+     if v_flag='1' then
+     insert into axuser_tra_share_2020 ( trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source from axuser_all_tra_share_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_pro_tra_flow_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source from axuser_pro_tra_flow_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_pro_tra_profit_2020 ( trd_date , cust_code , account , secu_intl , source , end_qty , pre_qty , cash_flow_qty , end_amt , pre_amt , cash_flow_amt , positive_amt , qty_exception , profit , profit_amt ) 
+     select trd_date , cust_code , account , secu_intl , source , end_qty , pre_qty , cash_flow_qty , end_amt , pre_amt , cash_flow_amt , positive_amt , qty_exception , profit , profit_amt from axuser_pro_tra_profit_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_tra_flow_2020 ( trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source from axuser_all_tra_flow_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_tra_profit_2020 ( trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt ) 
+     select trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt from axuser_all_tra_profit_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_mts_share_2020 ( trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source from axuser_all_mts_share_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_pro_mts_flow_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source from axuser_pro_mts_flow_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_pro_mts_profit_2020 ( trd_date , cust_code , account , secu_intl , source , end_qty , pre_qty , cash_flow_qty , end_amt , pre_amt , cash_flow_amt , positive_amt , qty_exception , profit , profit_amt ) 
+     select trd_date , cust_code , account , secu_intl , source , end_qty , pre_qty , cash_flow_qty , end_amt , pre_amt , cash_flow_amt , positive_amt , qty_exception , profit , profit_amt from axuser_pro_mts_profit_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_mts_flow_2020 ( trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source from axuser_all_mts_flow_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_mts_profit_2020 ( trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt ) 
+     select trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt from axuser_all_mts_profit_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_opt_share_2020 ( trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , share_qty , mkt_val , source from axuser_all_opt_share_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_opt_flow_2020 ( trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source ) 
+     select trd_date , cust_code , account , secu_intl , biz_code , mkt_val , source from axuser_all_opt_flow_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     insert into axuser_all_opt_profit_2020 ( trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt ) 
+     select trd_date , cust_code , account , end_amt , pre_amt , cash_flow_amt , positive_amt , profit , profit_amt from axuser_all_opt_profit_daily
+     where trd_date=v_date_2 ; 
+     commit ; 
+     end if ; 
+     --万得汇率
+     execute immediate 'truncate table axuser_exch_rate_v0' ; 
+     insert into axuser_exch_rate_v0
+     select to_number ( f1_1233 )  backup_date , 
+            case when a.f2_1233='HKD' then '1'
+                 else '2'
+            end CURRENCY , 
+       a.f7_1233 as EXCH_CURR , 
+       cast ( a.f3_1233/100 as decimal ( 16 , 6 )  )   as EXCH_RATE
+       from  wndwind.tb_object_1233 a
+     where f2_1233 in  ( 'HKD' , 'USD' ) 
+       and a.f7_1233 like '%CNY' ; 
+    commit ; 
+  --log  20190412
+    update axuser_prf_pre_data_log set exch_rate_v0=sysdate where id=v_id ; 
+    commit ; 
+
+     --清洗万德码交易码对应关系
+     execute immediate 'truncate table axuser_wfd_stockcoding_v0' ; 
+     insert into axuser_wfd_stockcoding_v0
+     select a.f16_0001  stock_id , 
+            a.f4_0001   trading_code , 
+            a.f5_0001   secu_local_sort , 
+            a.f6_0001   secu_name , 
+            a.f14_0001  exchange_eng , 
+            a.f15_0001  exchange_name , 
+            b.f2_0003   prd_classification_big_name , 
+            a.f18_0001  survival_status , 
+            case when a.f15_0001='上海 then to_number ( '1' || a.f4_0001 ) 
+                 when a.f15_0001='深圳 then to_number ( a.f4_0001 ) 
+                 when a.f15_0001='新三板 then to_number ( '2' || a.f4_0001 ) 
+                 else null end  prd_no , 
+            a.f15_0001  mkt
+       from wndwind.TB_OBJECT_0001 a inner join wndwind.TB_OBJECT_0003 b  on a.f10_0001 = b.f3_0003
+      where regexp_replace ( a.f4_0001 , '^[-\+]?\d+ ( \.\d+ ) ?$' , '' )  is  null ; 
+     commit ; 
+
+   --log 20190412
+     update axuser_prf_pre_data_log set wfd_stockcoding_v0=sysdate where id=v_id ; 
+     commit ; 
+
+     --清洗配股价格和配股日期
+     execute immediate 'truncate table axuser_stock_sell_v0' ; 
+     insert into axuser_stock_sell_v0
+         select a.prd_no , 
+            case when a.mkt='上海 then to_number ( '1' || b.f4_1092 ) 
+                 when a.mkt='深圳 then to_number ( b.f4_1092 ) 
+                 when a.mkt='新三板 then to_number ( '2' || b.f4_1092 ) 
+                 else null end  stock_share_no , 
+           -- b.f4_1092  stock_share_no , 
+            b.f19_1092 stock_share_price , 
+            decode ( b.f52_1092 , null , null , b.f52_1092 )   stock_divi_date , 
+            decode ( b.f53_1092 , null , null , b.f53_1092 )   buy_begin_date , 
+            decode ( b.f54_1092 , null , null , b.f54_1092 )   buy_end_date , 
+            decode ( b.f55_1092 , null , null , b.f55_1092 )   on_market_date , 
+            decode ( b.f51_1092 , null , null , b.f51_1092 )   regist_date
+       from axuser_wfd_stockcoding_v0 a inner join wndwind.tb_object_1092 b on a.stock_id = b.f49_1092 ; 
+     commit ; 
+
+   --log 20190412
+     update axuser_prf_pre_data_log set stock_sell_v0=sysdate where id=v_id ; 
+     commit ; 
+
+     --除权因子和分红因子
+     execute immediate 'truncate table axuser_secu_divide_info_v0' ; 
+     insert into axuser_secu_divide_info_v0
+     select b.prd_no , 
+            substr ( a.f25_1093 , 1 , 4 )  || '-' || substr ( a.f25_1093 , 5 , 2 )  || '-' || substr ( a.f25_1093 , 7 , 2 )  right_reg_date , 
+            substr ( a.f26_1093 , 1 , 4 )  || '-' || substr ( a.f26_1093 , 5 , 2 )  || '-' || substr ( a.f26_1093 , 7 , 2 )  exdivi_date , 
+             ( nvl ( a.f5_1093 ,  0 ) /nvl ( a.f4_1093 ,  1 )  +nvl ( a.f7_1093 ,  0 ) /nvl ( a.f6_1093 ,  1 )  + 1 )    scale_factor , 
+            -- ( 1-nvl ( a.f10_1093 ,  0 ) /nvl ( a.f8_1093 ,  1 )  )  divi_factor
+             ( nvl ( a.f9_1093 ,  0 ) /nvl ( a.f8_1093 ,  1 )  )  divi_factor
+       from wndwind.tb_object_1093 a left join axuser_wfd_stockcoding_v0 b on a.f1_1093=b.stock_id
+      where a.f26_1093 is not null
+        and  ( f5_1093 is not null or f7_1093 is not null or f10_1093 is not null )  ; 
+     commit ; 
+     insert into axuser_secu_divide_info_v0 ( prd_no , right_reg_date , exdivi_date , scale_factor , divi_factor )  values ( 2230 , '2018-05-11' , '2018-05-14' , 1.5 , 0.1 )  ; 
+     commit ;     --人工维护科大讯飞0180511除权资讯0190328
+
+   --log 20190412
+     update axuser_prf_pre_data_log set secu_divide_info_v0=sysdate where id=v_id ; 
+     commit ; 
+
+     --清洗沪市新股申购码和交易码
+     execute immediate 'truncate table axuser_new_stock_sh_v0' ; 
+     insert into axuser_new_stock_sh_v0
+     select c.stock_id , 
+            case when c.exchange_name='上海 then to_number ( '1' || c.trading_code ) 
+                 when c.exchange_name='深圳 then to_number ( c.trading_code ) 
+                 when c.exchange_name='新三板 then to_number ( '2' || c.trading_code ) 
+                 else to_number ( c.trading_code )  end  trading_code , 
+            --decode ( c.exchange_name , '上海 , to_number ( '1' || c.trading_code )  , c.trading_code )  trading_code , 
+            --decode ( c.exchange_name , '上海 , to_number ( '1' || d.f13_1095 )  , d.f13_1095 )  new_buy_code , 
+            case when c.exchange_name='上海 then to_number ( '1' || d.f13_1095 ) 
+                 when c.exchange_name='深圳 then to_number ( d.f13_1095 ) 
+                 when c.exchange_name='新三板 then to_number ( '2' || d.f13_1095 ) 
+                 else to_number ( d.f13_1095 )  end  new_buy_code , 
+            c.secu_local_sort , 
+            c.secu_name , 
+            c.exchange_eng , 
+            c.exchange_name , 
+            c.survival_status , 
+            decode ( d.f37_1095 , null , null , to_number ( d.f37_1095 )  )  new_buy_date , 
+            decode ( d.f50_1095 , null , null , to_number ( d.f50_1095 )  )  ipo_date
+      from  axuser_wfd_stockcoding_v0 c  inner join wndwind.TB_OBJECT_1095 d  on c.stock_id = d.f1_1095 and f13_1095 is not null ; 
+     commit ; 
+
+   --log 20190412
+     update axuser_prf_pre_data_log set new_stock_sh_v0=sysdate where id=v_id ; 
+     commit ; 
+
+     --创建新的行情表停牌时收盘价展示停牌之前的最后一个收盘价港股通优先取rakgdb.hkex_rate得卖出汇率，无则取港币汇率
+     execute immediate 'truncate table t_secu_mkt_info_new_v0' ; 
+     insert into t_secu_mkt_info_new_v0
+     select/*parallel ( 16 ) */ a.backup_date , 
+            a.secu_intl , 
+            case when s.board='3' then
+             ( decode ( nvl ( a.current_price , 0 )  , 0 , nvl ( a.closing_price , 0 )  , a.current_price ) +nvl ( a.bond_int , 0 )  ) * ( case when h.mchl is null then nvl ( e.exch_rate , 1 )  else nvl ( h.mchl , 1 ) end ) 
+            else
+            ( decode ( nvl ( a.current_price , 0 )  , 0 , nvl ( a.closing_price , 0 )  , a.current_price ) +nvl ( a.bond_int , 0 )  ) *nvl ( e.exch_rate , 1 ) 
+            end current_price , 
+             ( nvl ( a.closing_price , 0 ) +nvl ( a.bond_int , 0 )  ) *nvl ( e.exch_rate , 1 )   close_price
+       from axods.f_tra_secu_mkt_info a , 
+             ( select secu_intl , board , case when board='3' then '1' else currency end currency from trakgdb.securities )  s , 
+            axuser_exch_rate_v0 e , 
+            trakgdb.hkex_rate h
+      where a.secu_intl=s.secu_intl
+        and a.backup_date=e.backup_date ( + ) 
+        and a.backup_date=h.rq ( + ) 
+        and s.currency=e.currency ( + ) 
+        and a.backup_date > =20160101 ; 
+     commit ; 
+
+   --log 20190412
+     update axuser_prf_pre_data_log set mkt_info_new_v0=sysdate where id=v_id ; 
+     commit ; 
+
+      --1 ETF行情处理柜台tf基金行情为 强制改为
+     execute immediate 'truncate table axuser_secu_price_etf_v0' ; 
+     insert into axuser_secu_price_etf_v0
+          select/*parallel ( 16 ) */ backup_date , secu_intl , current_price , close_price from  ( 
+     select aa.* , row_number (  )  over ( partition by aa.backup_date , aa.secu_intl order by aa.source )  as rank from
+     ( select/*parallel ( 16 ) */ a.backup_date , 
+            a.secu_intl , 
+            case when s.board='0' and s.secu_cls in  ( '8' , 'E' , 'X' )  then
+                ( case when current_price=0 or current_price is null then 1 else current_price end ) 
+            else
+               current_price
+            end as current_price , 
+            case when s.board='0' and s.secu_cls in  ( '8' , 'E' , 'X' )  then
+                ( case when close_price=0 or close_price is null then 1 else close_price end ) 
+            else
+               close_price
+            end close_price , 
+            '0' as source
+       from t_secu_mkt_info_new_v0 a , 
+             ( select secu_intl , board , secu_cls from trakgdb.securities )  s
+      where a.secu_intl=s.secu_intl
+      union all
+      select t.backup_date , to_number ( d.secu_intl )  , t.current_price , t.close_price , '1' as source from axuser_secu_price_etf_v0 t
+          join
+           ( select
+          case when a.s_info_windcode like '%.SH' then
+              concat ( '1' , substr ( a.s_info_windcode , 0 , instr ( a.s_info_windcode , '.' , 1 ) -1 )  ) 
+          else
+              substr ( a.s_info_windcode , 0 , instr ( a.s_info_windcode , '.' , 1 ) -1 ) 
+          end as secu_intl , 
+          case when a.s_info_windcode like '%.SH' then
+          concat ( '1' , a.ONLINE_OFFERING_CODE ) 
+          else
+               to_char ( ONLINE_OFFERING_CODE ) 
+          end as secu_intl_c , 
+          c.physical_date from
+            ( select S_INFO_WINDCODE , ONLINE_OFFERING_CODE , list_dt from newwind.etfpchredm where list_dt is not null AND  ( s_info_windcode LIKE '%.SH' or s_info_windcode LIKE '%.SZ' ) 
+            and  trim ( translate ( substr ( s_info_windcode , 0 , instr ( s_info_windcode , '.' , 1 ) -1 )  , '0123456789' , ' ' )  )  is null
+            )  a
+          join  ax_trd_date_row b on a.list_dt=b.physical_date
+          join  ax_trd_date_row c on b.rank_num=c.rank_num+1
+           )  d
+          on to_char ( t.secu_intl ) =d.secu_intl_c and t.backup_date=d.physical_date )  aa
+         )  tt where tt.rank=1 ; 
+
+
+
+          --2、深市除权价的处理
+     --考虑了除权价的行情
+     --除权价 ( 价格分红因子/除权因子
+     execute immediate 'truncate table axuser_secu_price_v0' ; 
+     insert into axuser_secu_price_v0
+     select a.backup_date , 
+            a.secu_intl , 
+            a.close_price , 
+            --decode ( s.market , '0' ,  (  ( a.current_price-nvl ( b.divi_factor , 0 )  ) /nvl ( b.scale_factor ,  1 )  )  , a.current_price  )  last_price ,  --考虑了除权的收盘价
+            case when s.market in  ( '0' , '2' )  then
+                  (  ( a.current_price-nvl ( b.divi_factor , 0 )  ) /nvl ( b.scale_factor ,  1 )  ) 
+            else a.current_price
+            end last_price ,  --考虑了除权的收盘价
+            /*a.current_price last_price , */
+            a.current_price undivi_last_price  --未考虑除权的收盘价
+            /*case when s.market in  ( '0' , '2' )  then
+             (  ( a.current_price*nvl ( b.scale_factor ,  1 )  ) +nvl ( b.divi_factor , 0 )  ) 
+            else a.current_price
+            end undivi_last_price*/
+      from  axuser_secu_price_etf_v0 a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+                                  left join axuser_secu_divide_info_v0 b  on a.secu_intl=b.prd_no and substr ( to_char ( a.backup_date )  , 1 , 4 )  || '-' || substr ( to_char ( a.backup_date )  , 5 , 2 )  || '-' || substr ( to_char ( a.backup_date )  , 7 , 2 ) =b.right_reg_date  --股权登记日
+      ; 
+     commit ; 
+
+     --log 20190412
+     update axuser_prf_pre_data_log set secu_price_v0=sysdate where id=v_id ; 
+     commit ; 
+
+
+     --3、新股申购的处理
+     --将申购码替换为交易码行情写入
+    merge into axuser_secu_price_v0 a using
+     ( select a.backup_date , b.trading_code secu_intl , a.close_price , a.close_price last_price , a.undivi_last_price
+              from axuser_secu_price_v0 a inner join axuser_new_stock_sh_v0 b  on a.secu_intl=b.new_buy_code
+             where  (  ( a.backup_date < b.ipo_date and a.backup_date > b.new_buy_date )  or  ( a.backup_date > b.new_buy_date and b.ipo_date is null )  )  and b.new_buy_date is not null )  c  on  ( c.secu_intl=a.secu_intl and c.backup_date=a.backup_date ) 
+     when matched then
+     update set a.last_price=c.last_price
+     when not matched then
+     insert ( backup_date , secu_intl , close_price , last_price , undivi_last_price )  values  ( c.backup_date , c.secu_intl , c.close_price , c.last_price , c.undivi_last_price )  ; 
+    commit ; 
+
+  --log 20190412
+    update axuser_prf_pre_data_log set merge_sql=sysdate where id=v_id ; 
+    commit ; 
+
+ --场外基金净值
+    execute immediate 'truncate table hist_fund_nav_tmp_date_1' ; 
+    insert into hist_fund_nav_tmp_date_1
+      select v_date_1 real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , 'fnd' source from
+         ( select TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , 
+                row_number (  ) over ( partition by fund_intl order by trd_date desc )  rn
+           from ridp_report.hist_fund_nav_vw
+          where trd_date between 20150101 and v_date ) 
+      where rn=1 ; 
+    commit ; 
+
+    --log 20190412
+    update axuser_prf_pre_data_log set fund_nav_date_1=sysdate where id=v_id ; 
+    commit ; 
+
+    delete hist_fund_nav_v0 where real_trd_date=v_date_1 ; 
+    commit ; 
+
+insert into hist_fund_nav_v0
+    select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , case when source='1fnd' then 'fnd' else source end as source from
+   ( select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , source , 
+  row_number (  ) over ( partition by FUND_INTL order by source desc )  rn1 from  ( 
+  select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , '1fnd' source
+      from  hist_fund_nav_tmp_date_1
+     where real_trd_date=v_date_1 and TRD_DATE=v_date
+    union all
+    select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , source
+    from  ( 
+  select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , source , 
+       row_number (  ) over ( partition by FUND_INTL order by flag desc )  rn
+    from  ( 
+  select real_trd_date , TRD_DATE , LAST_MATCH_DATE , FUND_INTL , NAV , ADDUP_NAV , TT_INCOME , 'fnd' source , 0 flag
+      from  hist_fund_nav_tmp_date_1
+     where real_trd_date=v_date_1 and TRD_DATE <  > v_date
+  union all
+  select v_date_1 , to_number ( a.f16_1101 )  TRD_DATE , to_number ( a.f13_1101 )  LAST_MATCH_DATE , f.fund_intl , a.f4_1101 nav , a.f12_1101 addup_nav , 0 TT_INCOME , 'wnd' source , 1 flag
+      from wndwind.tb_object_1101 a
+     inner join  ( select f2_1090 , f16_1090 , c.fund_intl from wndwind.tb_object_1090 b inner join trakgdb.funds c on b.f16_1090=c.fund_code )  f on a.f14_1101=f.f2_1090
+    where to_number ( a.f16_1101 ) =v_date
+  union all
+  select v_date_1 , to_number ( to_char ( t.noticedate , 'yyyymmdd' )  )  TRD_DATE , to_number ( to_char ( t.changedate , 'yyyymmdd' )  )  LAST_MATCH_DATE , j.fund_intl , t.pernav nav , t.accunav addup_nav , wanpernav TT_INCOME , 'cho' source , 2 flag
+      from choice.fund_nv_nv t inner join trakgdb.funds j on t.securitycode=j.fund_code
+     where to_number ( to_char ( t.noticedate , 'yyyymmdd' )  ) =v_date )  )  where rn=1 )  a )  final
+   where final.rn1=1
+    ; 
+    commit ; 
+
+  --log 20190412
+    update axuser_prf_pre_data_log set fund_nav_v0=sysdate where id=v_id ; 
+    commit ; 
+    update axuser_prf_pre_data_log set pre_data_finish_flag='Y' where id=v_id ; 
+    commit ; 
+
+    --log
+    update axuser_prf_log set pre_data=sysdate where id=v_id ; 
+    commit ; 
+
+
+     --2.2.1 take tra share
+     execute immediate 'truncate table axuser_all_tra_share_tmp_v0' ; 
+     insert into  axuser_all_tra_share_tmp_v0
+     select /*+parallel ( 16 ) */a.backup_date , 
+            a.cust_code , 
+            a.account , 
+           -- decode ( s.secu_cls , 'Q' , s.underlying_stock , a.secu_intl )  secu_intl , 
+            a.secu_intl , 
+           case when a.cust_code in  ( select user_code from jsjystds.users )  then share_bln
+                when a.secu_cls='7' and s.secu_name like '%配债' then  share_otd
+           else
+              ( SHARE_AVL + SHARE_TRD_FRZ + SHARE_OTD - SHARE_OTD_AVL + SHARE_FRZ ) 
+           end  share_qty , 
+            mkt_val , 
+            a.CURRENT_COST , 
+            a.secu_cls , 
+            'tra' source , 
+      a.secu_acc
+     from axods.f_tra_shares a  left join trakgdb.securities s on a.secu_intl=s.secu_intl
+     where a.secu_intl not in  ( 1888880 ,  131990 ,  131991 ) 
+       and a.backup_date=v_date_1
+     union all
+       SELECT /*+parallel ( a , 16 ) */
+      a.sett_date backup_date , 
+      a.cust_code , 
+      a.account , 
+      a.secu_intl , 
+      -1*a.share_qty , 
+      0 mkt_val , 
+      0 CURRENT_COST , 
+      '0' secu_cls , 
+      'tra' source , 
+    a.secu_acc
+FROM ridp_report.share_log_vw a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+WHERE  a.sett_date=v_date_1
+   AND  biz_code =130010
+  -- and s.secu_cls <  > '7' ;   --20190511
+   --and s.secu_cls not in  ( '7' , 'h' , 'E' )  ;   --20190719 20191016改n
+    and s.secu_cls='0' and s.market='1' and s.board='0' ; 
+     commit ; 
+
+     --replace new_buy_code to trading_code
+     execute immediate 'truncate table axuser_all_tra_share_tmp_v00' ; 
+     insert into  axuser_all_tra_share_tmp_v00
+     select a.BACKUP_DATE , 
+            a.CUST_CODE , 
+            a.ACCOUNT , 
+            case when  (  ( a.backup_date < b.ipo_date and a.backup_date > b.new_buy_date )  or  ( a.backup_date > b.new_buy_date and b.ipo_date is null )  ) 
+                  and trading_code is not null
+                then b.trading_code
+                else
+                  a.secu_intl
+              end secu_intl , 
+            a.share_qty , 
+            0 mkt_val , 
+            a.CURRENT_COST , 
+            a.secu_cls , 
+            a.source , 
+      a.secu_acc
+        from axuser_all_tra_share_tmp_v0 a  , 
+              ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null  and new_buy_date > 20150101  )  b  where a.secu_intl=b.new_buy_code ( + )   ; 
+     commit ; 
+     --债
+     execute immediate 'truncate table axuser_all_tra_share_v00' ; 
+     insert into  axuser_all_tra_share_v00
+     select /*+parallel ( 16 ) */a.backup_date , 
+            a.cust_code , 
+            a.account , 
+            a.secu_intl , 
+            a.share_qty , 
+            case when nvl ( e.last_price , 0 ) =0 and a.secu_cls in  ( '1' , '2' , '3' , '6' , 'D' , 'H' , 'S' , 'T' , 'V' , 'W' , 'Y' , 'a' , 'd' )  then
+                a.share_qty*100
+            else
+                a.share_qty*e.last_price
+            end mkt_val , 
+            a.CURRENT_COST , 
+            'tra' source , 
+      a.secu_acc
+     from axuser_all_tra_share_tmp_v00  a left join axuser_secu_price_v0 e on a.secu_intl=e.secu_intl and a.backup_date=e.backup_date
+     where a.backup_date=v_date_1 ; 
+     commit ; 
+
+     execute immediate 'truncate table axuser_all_tra_share_v0' ; 
+     insert into  axuser_all_tra_share_v0
+   select g.BACKUP_DATE , g.CUST_CODE , g.ACCOUNT , g.SECU_INTL , g.SHARE_QTY , g.MKT_VAL , g.CURRENT_COST , g.SOURCE , g.secu_acc , s.secu_code , s.market , s.board from  ( 
+     select a.BACKUP_DATE , 
+            a.CUST_CODE , 
+            a.ACCOUNT , 
+            a.secu_intl , 
+            case when  ( a.backup_date > =b.regist_date
+                  and a.backup_date < =b.buy_end_date
+                  and a.CURRENT_COST <  > 0 ) 
+                then a.share_qty
+                when  ( a.backup_date > =b.regist_date
+                  and a.backup_date < =b.buy_end_date
+                  and a.CURRENT_COST=0 ) 
+                then 0
+              else  a.share_qty
+              end  share_qty , 
+            case when  ( a.backup_date > =b.regist_date
+                  and a.backup_date < =b.buy_end_date
+                  and a.CURRENT_COST <  > 0 ) 
+                then a.share_qty*b.stock_share_price
+                when  ( a.backup_date > =b.regist_date
+                  and a.backup_date < =b.buy_end_date
+                  and a.CURRENT_COST=0 ) 
+                then 0
+              else  a.mkt_val
+              end  mkt_val , 
+            a.CURRENT_COST , 
+            case when  ( a.backup_date > =b.buy_begin_date
+                  and a.backup_date < =b.buy_end_date ) 
+                then 'rat'
+              else  a.source
+              end  source , 
+             a.secu_acc
+        from axuser_all_tra_share_v00 a left join  ( select to_number ( c.stock_share_no )  as secu_intl  , c.* from axuser_stock_sell_v0 c where buy_begin_date > 20150101 and buy_begin_date < =v_date_1 and buy_end_date > =v_date_1 )   b on a.secu_intl=b.secu_intl  ) g
+  --配股表中同个配股码有多条记录，疑为脏数据，暂从015年开始取数
+  left join trakgdb.securities s on g.secu_intl=s.secu_intl ; 
+     commit ; 
+
+     --2.2.5
+     --take fund vol
+     execute immediate 'truncate table axuser_all_fund_vol_v0' ; 
+     insert into  axuser_all_fund_vol_v0
+     select  a.backup_date , 
+             a.cust_code , 
+             a.account , 
+             a.fund_intl secu_intl , 
+             a.fund_code , 
+             a.fund_bln share_qty , 
+             a.fund_bln*nvl ( h.nav , 0 )  mkt_val , 
+             a.current_cost , 
+             'fnd' source
+        from axods.f_tra_fund_vol a left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.backup_date
+       where a.fund_code not in  ( 'AD0007' , '000750' ) 
+         and a.backup_date=v_date_1 ; 
+
+     execute immediate 'truncate table axuser_all_bj_share_v0' ; 
+     insert into  axuser_all_bj_share_v0
+      select  a.backup_date , 
+             a.cust_code , 
+             a.account , 
+             a.secu_intl secu_intl , 
+             a.secu_code , 
+             sum ( a.bb_qty )  share_qty , 
+             sum ( a.bb_qty*100 )  mkt_val , 
+             sum ( a.bb_qty*100 )  current_cost , 
+             'bj' source
+        from axods.f_tra_bj_bb_contracts a 
+       where a.trd_id in  ( '9O' , '9P' , '9Q' )   
+         and a.backup_date=v_date_1 and a.bond_code <  > 'AXB001'
+         group by a.backup_date , a.cust_code，.account , a.secu_intl , a.secu_code , 'bj' ; 
+     commit ; 
+
+      --2.2.6
+     --get otc net
+     --take otc asset
+     execute immediate 'truncate table axuser_all_otc_share_v0' ; 
+     insert into  axuser_all_otc_share_v0
+     SELECT  a.backup_date , 
+             a.cust_code , 
+             a.cuacct_code account , 
+             to_char ( a.inst_sno )  secu_intl , 
+             a.inst_bal/100  share_qty , 
+              ( a.inst_bal/100*get_otc_net ( a.backup_date , a.inst_sno )  )  mkt_val , 
+             a.current_cost , 
+             'otc' source
+        from axods.f_otc_asset a
+       where a.backup_date=v_date_1 ; 
+     commit ; 
+
+
+     --2.2.7
+     --take bb bond contract
+     execute immediate 'truncate table axuser_all_bb_v0' ; 
+     insert into  axuser_all_bb_v0
+     select t.trd_date , t.cust_code , t.account , t.secu_intl , t.bb_qty , t.mkt_val , t.source from  ( 
+     select a.backup_date trd_date , 
+            a.bb_date , 
+            b.rank_num , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            decode ( a.trd_id , '9T' , ABS ( a.bb_qty )  , -1*ABS ( a.bb_qty )  )  bb_qty , 
+            decode ( a.trd_id , '9T' , abs ( a.bb_amt )  , -1*abs ( a.bb_amt )  )  mkt_val , 
+            'bbb' source
+        from AXODS.F_TRA_BB_CONTRACTS a   left join ax_trd_date_row b on  a.backup_date=b.physical_date
+       where a.bb_status in ( '0' , '1' ) 
+         and a.trd_id in ( '9T' , '9D' ) 
+         and a.backup_date=v_date_1 )  t left join ax_trd_date_row t1 on t.rank_num=t1.rank_num-1
+       where t1.physical_date < t.bb_date  ; 
+     commit ; 
+
+     --2.2.8
+     --take mortgage bond contract
+     execute immediate 'truncate table axuser_all_sdt_v0' ; 
+     insert into  axuser_all_sdt_v0
+     select b.backup_date , 
+            b.cust_code , 
+            b.account , 
+            b.secu_intl , 
+            b.share_qty , 
+            b.share_qty*nvl ( e.last_price , 100 )  mkt_val , 
+            'sdt' source , 
+      b.secu_acc , 
+      j.secu_code , 
+      j.market , 
+      j.board
+       from  ( select a.backup_date , a.cust_code , a.account , 
+              ( SHARE_AVL + SHARE_TRD_FRZ + SHARE_OTD - SHARE_OTD_AVL )  share_qty , 
+             case  when s.secu_cls in  ( 'D' , '2' )  and s.market='1' then to_number ( '1' || s.underlying_stock ) 
+                  when s.secu_cls in  ( 'D' , '2' )  and s.market='0' then to_number ( s.underlying_stock ) 
+             else a.secu_intl
+             end secu_intl , 
+            a.secu_acc
+             from axods.f_tra_mortgage_bond a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+             where a.backup_date=v_date_1 )  b
+      left join axuser_secu_price_v0 e on b.secu_intl=e.secu_intl and b.backup_date=e.backup_date
+      left join trakgdb.securities j on b.secu_intl=j.secu_intl     ; 
+     commit ; 
+
+
+
+     --2.2.9
+     --take Agreed to buy back bond contract
+     execute immediate 'truncate table axuser_all_yd_bb_v0' ; 
+     insert into  axuser_all_yd_bb_v0
+     select a.backup_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            a.secu_intl , 
+            ABS ( a.bb_qty-a.qty_qp )  bb_qty , 
+            nvl ( b.last_price , 0 ) *abs ( a.bb_qty-a.qty_qp )  mkt_val , 
+           'atb' source , 
+       a.secu_acc , 
+       a.secu_code , 
+       a.market , 
+       a.board
+      from axods.f_tra_yd_bb_contracts a  left join axuser_secu_price_v0 b on a.secu_intl=b.secu_intl and a.backup_date=b.backup_date
+     where a.bb_status='0'
+       and a.backup_date=v_date_1 ; 
+     commit ; 
+
+      --2.2.10
+     --take pledge of share contract
+     execute immediate 'truncate table axuser_all_gp_bb_v0' ; 
+     insert into  axuser_all_gp_bb_v0
+     select a.backup_date trd_date , 
+            a.cust_code_in cust_code , 
+            a.account_in account , 
+            a.secu_intl , 
+            abs ( a.bb_qty-a.int_qty )  bb_qty , 
+            nvl ( b.last_price , 0 ) *abs ( a.bb_qty-a.int_qty )  mkt_val , 
+           'pos' source , 
+       a.secu_acc_in secu_acc , 
+       s.secu_code , 
+       s.market , 
+       s.board
+      from axods.f_tra_gp_contracts a  left join axuser_secu_price_v0 b on a.secu_intl=b.secu_intl and a.backup_date=b.backup_date
+                                     left join trakgdb.securities s on a.secu_intl=s.secu_intl
+     where a.backup_date=v_date_1
+        and a.bb_status='0'  ; 
+     commit ; 
+
+     --2.2.12
+     --take tra capital
+     execute immediate 'truncate table axuser_all_tra_cptl_v0' ; 
+     insert into  axuser_all_tra_cptl_v0
+     SELECT  /*+parallel ( d , 8 ) */
+             d.backup_date , 
+             d.user_code cust_code , 
+             d.account , 
+             'cash_tra' secu_intl , 
+             0 share_qty , 
+             case when d.user_code in  ( select user_code from jsjystds.users )  then nvl ( d.balance , 0 ) 
+             else
+               ( NVL ( d.AVAILABLE , 0 ) +NVL ( d.TRD_FRZ , 0 ) +NVL ( d.FROZEN , 0 ) +NVL ( d.OUTSTANDING , 0 ) -NVL ( d.OTD_AVL , 0 ) +NVL ( d.CR_AMT , 0 ) -NVL ( d.DR_AMT , 0 )  ) *nvl ( e.exch_rate , 1 ) 
+             end capital , 
+             ' ' current_cost , 
+             'trc' source
+         FROM axods.f_tra_capital d left join axuser_exch_rate_v0 e on d.currency=e.currency and d.backup_date=e.backup_date
+        WHERE d.backup_date=v_date_1 ; 
+     commit ; 
+
+
+     --take hk capital
+     execute immediate 'truncate table axuser_all_hk_cptl_v0' ; 
+     insert into  axuser_all_hk_cptl_v0
+     SELECT  /*+parallel ( d , 8 ) */
+             d.backup_date , 
+             d.user_code cust_code , 
+             d.account , 
+             'cash_tra' secu_intl , 
+             d.available*nvl ( e.exch_rate , 1 )  capital , 
+             'hkc' source
+         FROM axods.f_tra_hkex_capital d left join axuser_exch_rate_v0 e on d.currency=e.currency and d.backup_date=e.backup_date
+        WHERE d.backup_date=v_date_1 ; 
+     commit ; 
+
+
+     --take atbb det 红利金额？？
+     execute immediate 'truncate table axuser_all_yd_det_v0' ; 
+     insert into  axuser_all_yd_det_v0
+     select a.backup_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            -1*ABS ( a.bb_qty )  bb_qty , 
+            -1*abs ( a.bb_amt-a.amt_qp )  mkt_val , 
+           'ydb' source
+      from axods.f_tra_yd_bb_contracts a
+     where a.bb_status='0'
+       and a.backup_date=v_date_1 ; 
+     commit ; 
+
+
+     --take gp debt
+     execute immediate 'truncate table axuser_all_gp_det_v0' ; 
+     insert into  axuser_all_gp_det_v0
+     select a.backup_date trd_date , 
+            a.cust_code_in cust_code , 
+            a.account_in account , 
+            a.secu_intl secu_intl , 
+            -1*abs ( a.bb_qty )  bb_qty , 
+            -1*abs ( a.bb_amt-a.int_amt )  mkt_val , 
+           'gdb' source
+      from axods.f_tra_gp_contracts a
+     where a.backup_date=v_date_1
+        and a.bb_status='0'  ; 
+     commit ; 
+
+
+     --2.2.13
+     --take credit contract
+     --信用回购RAKGDB.XY_CONTRACTS/TRAKGDB.H_XY_CONTRACTS/AXODS.F_TRA_xy_CONTRACTS
+     execute immediate 'truncate table axuser_all_xy_v0' ; 
+     insert into  axuser_all_xy_v0
+     select a.backup_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            a.secu_intl , 
+            -1*ABS ( a.bb_qty )  bb_qty , 
+           /* -1*abs ( a.bb_amt )  mkt_val , */--20181101
+            -1*abs ( a.bb_amt-a.has_bb_amt )  mkt_val , 
+            'crd' source
+        from axods.f_tra_xy_contracts a
+       where a.bb_status in ( '0' , '1' ) 
+         and a.backup_date=v_date_1 ; 
+     commit ; 
+
+
+     delete from axuser_pro_tra_asset_2020 where trd_date=v_date_1 ; 
+   commit ; 
+   insert into axuser_pro_tra_asset_2020 ( TRD_DATE , CUST_CODE , ACCOUNT , SECU_INTL , SHARE_QTY , MKT_VAL , SOURCE , secu_acc , secu_code , market , board ) 
+   select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_tra_share_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_fund_vol_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_otc_share_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_sdt_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , bb_qty share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_yd_bb_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , bb_qty share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_gp_bb_v0
+     union all
+     select backup_date trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , capital mkt_val , source , '' , '' , '' , '' from axuser_all_tra_cptl_v0
+     union all
+     select backup_date trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , capital mkt_val , source , '' , '' , '' , '' from axuser_all_hk_cptl_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_bb_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_yd_det_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_gp_det_v0
+     union all
+     select trd_date  , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source , '' , '' , '' , '' from axuser_all_xy_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , trim ( source )  , '' , '' , '' , '' from axuser_all_bj_share_v0
+     commit ; 
+
+     --take asset
+     execute immediate 'truncate table axuser_all_tra_share_daily' ; 
+     insert into  axuser_all_tra_share_daily
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_tra_share_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_fund_vol_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_otc_share_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_sdt_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , bb_qty share_qty , mkt_val , source from axuser_all_yd_bb_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , bb_qty share_qty , mkt_val , source from axuser_all_gp_bb_v0
+     union all
+     select backup_date trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , capital mkt_val , source from axuser_all_tra_cptl_v0
+     union all
+     select backup_date trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , capital mkt_val , source from axuser_all_hk_cptl_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source from axuser_all_bb_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source from axuser_all_yd_det_v0
+     union all
+     select trd_date , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source from axuser_all_gp_det_v0
+     union all
+     select trd_date  , cust_code , account , 'cash_tra'  secu_intl , 0 share_qty , mkt_val , source from axuser_all_xy_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , trim ( source )  from axuser_all_bj_share_v0
+       ; 
+      commit ; 
+
+     --log
+     update axuser_prf_log set tra_share=sysdate where id=v_id ; 
+     commit ; 
+
+
+     --资金流水
+     execute immediate 'truncate table axuser_pro_tra_cptl_log_v0' ; 
+     insert into  axuser_pro_tra_cptl_log_v0
+     select a.sett_date , 
+          --v_date_1 sett_date , 
+            a.user_code cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            to_char ( a.biz_code )  biz_code , 
+            0 share_qty , 
+            a.cptl_amt*nvl ( e.exch_rate , 1 )  cptl_amt , 
+            'clg' source
+       from ridp_report.cptl_log_vw  a  left join axuser_exch_rate_v0 e on a.currency=e.currency and a.sett_date=e.backup_date
+      where a.sett_date=v_date_1
+          --a.sett_date > v_date_2 and a.sett_date < =v_date_1
+        and a.biz_code in  ( 2000 , 2010 , 2020 , 2025 , 2030 , 2031 , 2100 , 2110 , 2120 , 2125 , 2130 , 2131 , 2132 , 2133 , 2134 , 2135 , 2136 , 2200 , 2210 , 2220 , 2230 , 2235 , 2430 , 
+        3000 , 3100 , 3101 , 3102 , 3110 , 3120 , 3121 , 3122 , 3123 , 3124 , 3125 , 3130 , 3131 , 3140 , 3141 , 3142 , 3143 , 3160 , 3161 , 3200 , 3201 , 3210 , 3211 , 3220 , 3224 , 3227 , 
+        3228 , 3230 , 3235 , 3240 , 3500 , 4200 , 4210 , 4600 , 4610 , 4640 , 4650 , 4670 , 4680 , 4681 , 4685 , 4690 , 4710 , 4740 , 4760 , 4765 , 4770 , 4785 , 4800 , 4805 , 4806 , 4810 , 4840 , 
+        4865 , 4880 , 4900 , 5000 , 5010 , 5020 , 5030 , 5150 , 5151 , 5153 , 5206 , 5207 , 5209 , 5212 , 5224 , 5300 , 5310 , 5400 , 5440 , 5500 , 5501 , 5502 , 5503 , 5540 , 5590 , 5591 , 5594 , 
+        5595 , 5596 , 5620 , 5664 , 5668 , 5669 , 5670 , 5676 , 5677 , 5691 , 5697 , 6000 , 6209 , 6210 , 6310 , 8000 , 8001 , 8006 , 8008 , 
+        8024 , 8026 , 8030 , 8036 , 8037 , 8038 , 8039 , 99999 , 100020 , 104640 , 105000 , 110030 , 110883 , 120030 , 120040 , 130030 , 130210 , 130230 , 130310 , 130330 , 140020 , 
+        140050 , 140060 , 1125022 , 1125039 , 1125049 , 1125050 , 1125043 , 1125030 )  ;     --增加125030 20190511
+     commit ; 
+
+     --+交易
+     --剔除4 , 42，剔除约定购回、股票质押、国债回购
+
+
+    --场内非交易151255 , 151256
+  --20191122 优化30010逻辑排除沪市股及科创板
+     execute immediate 'truncate table axuser_pro_tra_share_log_v00' ; 
+     insert into  axuser_pro_tra_share_log_v00
+      SELECT /*+parallel ( a , 16 ) */
+           a.sett_date trd_date , 
+           a.cust_code , 
+           a.account , 
+           a.secu_intl , 
+           to_char ( a.biz_code )  biz_code , 
+           a.share_qty , 
+           case when a.biz_code in  ( 5340 , 5000 )  then 0
+            else a.share_qty*nvl ( p.last_price , 0 ) 
+           end mkt_val , 
+           'slg' source , 
+           '00' order_type , 
+           b.market , 
+           b.board , 
+       a.secu_acc , 
+           --a.occur_date trd_time , 
+       to_char ( a.occur_date , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+           z.biz_name , 
+           b.secu_code , 
+           b.secu_cls , 
+           0 matched_qty , 
+           0 matched_price , 
+           0 matched_amt , 
+       a.share_qty sett_qty , 
+           a.trd_cost sett_amt
+     FROM ridp_report.share_log_vw a inner join  trakgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                                     left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+                   left join trakgdb.biz_setting z on a.biz_code=z.biz_code
+     WHERE  a.sett_date=v_date_1
+        -- 4650	申购中签740	申购还款
+        AND  (  a.biz_code IN  ( 4650 , 4740 , 4600 , 4800 , 5000 , 5340 , 100000 , 100010 , 100021 , 100022 , 100050 , 100080 , 110010 , 110020 , 110030 , 110040 , 120010 , 120020 , 120030 , 120040 , 
+        130060 , 130065 , 140010 , 140020 , 140030 , 140040 , 140050 , 140060 , 151011 , 151012 , 151013 , 151014 , 151071 , 151204 , 151240 , 151244 , 151255 , 151256 , 151312 , 
+        151313 , 171500 , 171510 , 171540 , 171550 , 1125026 , 1125027 , 1125028 )  or  ( a.biz_code=104640 and a.remark not like '权益' )  or a.biz_code=130010  )   --增加发债转债的30010 20190511
+    minus
+     SELECT /*+parallel ( a , 16 ) */
+           a.sett_date trd_date , 
+           a.cust_code , 
+           a.account , 
+           a.secu_intl , 
+           to_char ( a.biz_code )  biz_code , 
+           a.share_qty , 
+           case when a.biz_code in  ( 5340 , 5000 )  then 0
+            else a.share_qty*nvl ( p.last_price , 0 ) 
+           end mkt_val , 
+           'slg' source , 
+           '00' order_type , 
+           b.market , 
+           b.board , 
+       a.secu_acc , 
+           --a.occur_date trd_time , 
+       to_char ( a.occur_date , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+           z.biz_name , 
+           b.secu_code , 
+           b.secu_cls , 
+           0 matched_qty , 
+           0 matched_price , 
+           0 matched_amt , 
+       a.share_qty sett_qty , 
+           a.trd_cost sett_amt
+     FROM ridp_report.share_log_vw a inner join  trakgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                                     left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+                   left join trakgdb.biz_setting z on a.biz_code=z.biz_code
+     WHERE  a.sett_date=v_date_1
+        AND  ( a.biz_code=130010 and  (  ( b.secu_cls='0' and b.market='1' and b.board='0' )  or b.secu_cls='h' )  )  ; 
+
+     commit ; 
+
+     --+交易000 份额分红从hare_log拿数
+     --+交易F
+
+     --交易流水去掉ecu_cls='X' , trd_id in  (  '7M' , '7N' ) 
+     --剔除国债回购流水
+     --剔除债券质押出入仓流水rd_id='BZ'
+     --转股在停牌期间缴费，持仓清零，在缴费当天清算为正股代码记为在途股份，流水为配股代码需要转为正股代码这账平。
+     execute immediate 'truncate table axuser_pro_tra_match_v00' ; 
+     insert into  axuser_pro_tra_match_v00
+     select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            case when a.trd_id='4B' then b.prd_no
+              else a.secu_intl
+            end secu_intl , 
+            a.trd_id biz_code , 
+            case when a.trd_id='4B' then abs ( a.sett_qty ) 
+                 when a.trd_id in  ( '9B' , '9D' )  AND a.secu_cls='3' then 0
+            else a.sett_qty
+            end share_qty , 
+           case when a.trd_id in  ( '7R' , '7T' )  THEN  a.sett_qty*nvl ( p.last_price , 0 ) 
+                when a.trd_id in  ( '6S' , '5S' )  THEN  DECODE ( A.SETT_AMT , 0 , a.sett_qty*nvl ( p.last_price , 0 )  , -1*a.sett_amt*nvl ( r.exch_rate , 1 )  ) 
+                 when a.trd_id in  ( '9B' , '9D' )  AND a.secu_cls='3' then 0
+            else -1*a.sett_amt*nvl ( r.exch_rate , 1 ) 
+            end mkt_val , 
+            'trm' source , 
+          '00' order_type , 
+           a.market , 
+           a.board , 
+       a.secu_acc , 
+           --a.order_date trd_time , 
+       a.trd_date || ' ' || a.matched_time trd_time , 
+           z.trd_name biz_name , 
+           a.secu_code , 
+           a.secu_cls , 
+           a.matched_qty , 
+           a.matched_price , 
+           a.matched_amt , 
+       a.sett_qty , 
+           a.sett_amt
+       from ridp_report.h_matching_vw a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+                                        left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.trd_date=p.backup_date
+                                        left join  ( select to_number ( c.stock_share_no )  as secu_intl  , c.* from axuser_stock_sell_v0 c where buy_begin_date > 20150101 and buy_begin_date < =v_date_1 and buy_end_date > =v_date_1 )   b on a.secu_intl=b.secu_intl
+                                        left join trakgdb.trade z on a.trd_id=z.trd_id
+    where a.trd_date=v_date_1
+        and  (  ( a.trd_id in  ( '0B' , '0S' , '1B' , '1S' , '2B' , '2S' , '4B' , '4C' , '4P' , '4Q' , '4R' , '4S' , '4T' , '6S' , '6T' , '7B' , '7J' , '7K' , '7L' , 
+        '7P' , '7Q' , '7R' , '7T' , '7U' , '7W' , '7X' , '7Y' , '82' , '84' , '89' , '8B' , '9A' , '9B' , '9D' , '9E' , '9F' , '9G' , '9H' , 'G1' , 'GA' , 'GB' , 'GS' , 
+        'HB' , 'HS' , 'IB' , 'IS' , 'JB' , 'JS' , 'LB' , 'LS' , 'NB' , 'NG' , 'NS' , 'NT' , 'OB' , 'OS' , 'SB' , 'SG' , 'SS' , 'TB' , 'TS' , 'UB' , 'US' , 'VB' , 'VS' , 'WB' , 'WS' , 'XB' , 'XS' , 'YB' , 'YS' , 'Z0' , 'Z1' , 'Z2' , 
+        'Z3' , 'ZB' , 'ZC' , 'ZH' , '22' , '24' , '26' , '27' , '28' , '30' , '33' , '34' , '35' , '36' , '37' , '38' , '39' , '40' , '41' , '42' , '43' , '44' , '45' , '98' , 'X1' , 'HF' , 'EZ' , 'ZM' , 'ZL' , 
+        'SZ' , 'BX' , 'SX' , 'DB' , 'DS' , 'BF' , 'SF' , 'BC' , 'SC' , '9W' , 'BZ' , 'ZK' , 'ZD' , 'QB' , 'QS' )  )  -- 新增创业板、科创板B-盘后固定价格买入、S-盘后固定价格卖出
+    or  ( a.trd_id='5S' and a.secu_cls='7' ) 
+    or  ( a.MARKET <  > 2 and a.TRD_ID in ( '7E' , '7F' )  ) 
+    or  ( a.trd_id='ZA' and a.matched_qty=0 )  or  ( a.secu_cls not in 'X' and a.trd_id in  ( '7M' , '7N' )  )  ) 
+     --中签缴款日造一笔流水
+     union all
+     select a.pay_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            a.secu_intl , 
+            '4640' biz_code , 
+            a.pay_qty share_qty , 
+            a.pay_amt mkt_val , 
+            'new' source , 
+            '00' order_type , 
+            a.market , 
+            a.board , 
+            a.secu_acc , 
+            --to_timestamp ( to_char ( a.pay_date )  , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+      to_char ( to_date ( to_char ( a.pay_date )  , 'yyyymmdd hh24:mi:ss' )  , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+            '新股申购 biz_name , 
+            s.secu_code , 
+            s.secu_cls , 
+            a.pay_qty matched_qty , 
+            a.order_price matched_price , 
+            a.pay_amt matched_amt , 
+        a.pay_qty sett_qty , 
+            a.pay_amt sett_amt
+       from trakgdb.ipo_handover a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+     where pay_date=v_date_1 and a.MARKET <  > 2 --剔除股转新股中签日流水0200704
+   union all
+   --沪市转股逻辑处理
+   select a.trd_date , a.cust_code , a.account , a.secu_intl , a.trd_id , a.sett_qty ,  ( a.order_qty_order*decode ( nvl ( c.current_price , 0 )  , 0 , c.closing_price , c.current_price )  )  -a.sett_amt as cash_fow_amt , 
+   'trm' , '00' order_type , 
+           a.market , 
+           a.board , 
+       a.secu_acc , 
+           --a.order_date trd_time , 
+       a.trd_date || ' ' || a.matched_time trd_time , 
+           '转债转股 biz_name , 
+           a.secu_code , 
+           a.secu_cls , 
+           a.matched_qty , 
+           a.matched_price , 
+           a.matched_amt , 
+       a.sett_qty , 
+           a.sett_amt
+from  ( select o.secu_intl as secu_intl_order , H.* , o.order_qty as order_qty_order  from ridp_report.h_matching_vw H
+left join  ( select t.order_id , t.order_qty , t.cust_code , t.trd_date , '1' || s.underlying_stock as secu_intl from ridp_report.h_orders t
+inner join trakgdb.securities  s on t.secu_intl=s.secu_intl
+where t.trd_id='5S' and s.market='1' )  o on h.cust_code=o.cust_code and h.order_id=o.order_id and h.trd_date=o.trd_date
+and   h.trd_id='5S' AND h.secu_cls <  > '7' and h.market='1' and h.trd_date=v_date_1
+  )  a
+join axods.f_tra_secu_mkt_info c on a.secu_intl_order=c.secu_intl and a.trd_date=c.backup_date
+union all
+----深市转股逻辑处理
+ select a.trd_date , a.cust_code , a.account , a.secu_intl , a.trd_id , a.sett_qty ,  ( a.order_qty_order*decode ( nvl ( c.current_price , 0 )  , 0 , c.closing_price , c.current_price )  )  -a.sett_amt as cash_fow_amt , 
+   'trm' , '00' order_type , 
+           a.market , 
+           a.board , 
+       a.secu_acc , 
+           --a.order_date trd_time , 
+       a.trd_date || ' ' || a.matched_time trd_time , 
+           '转债转股 biz_name , 
+           a.secu_code , 
+           a.secu_cls , 
+           a.matched_qty , 
+           a.matched_price , 
+           a.matched_amt , 
+       a.sett_qty , 
+           a.sett_amt
+from  ( select o.secu_intl as secu_intl_order , H.* , o.order_qty as order_qty_order  from ridp_report.h_matching_vw H
+left join ridp_report.h_orders o on h.cust_code=o.cust_code and h.order_id=o.order_id and h.trd_date=o.trd_date
+and   h.trd_id='5S' AND h.secu_cls <  > '7' and h.market='0' and h.trd_date=v_date_1
+  )  a
+join axods.f_tra_secu_mkt_info c on a.secu_intl_order=c.secu_intl and a.trd_date=c.backup_date
+union all
+--要约收购逻辑处理
+ select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            a.secu_intl , 
+            a.trd_id biz_code , 
+            a.matched_qty share_qty , 
+            -1*a.sett_amt*nvl ( r.exch_rate , 1 )  as mkt_val , 
+            'trm' source , 
+            '00' order_type , 
+           a.market , 
+           a.board , 
+           a.secu_acc , 
+           a.trd_date || ' ' || a.matched_time trd_time , 
+           '预受要约 biz_name , 
+           a.secu_code , 
+           a.secu_cls , 
+           a.matched_qty , 
+           a.matched_price , 
+           a.matched_amt , 
+           a.sett_qty , 
+           a.sett_amt
+       from ridp_report.h_matching_vw a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+    where a.trd_date=v_date_1
+      and a.trd_id='ES'
+    ; 
+     commit ; 
+
+
+     --沪市申购码替换
+     --交易流水
+     execute immediate 'truncate table axuser_pro_tra_match_v0' ; 
+     insert into  axuser_pro_tra_match_v0
+     select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            case when  (  ( a.trd_date < =b.ipo_date and a.trd_date > b.new_buy_date )  or  ( a.trd_date > b.new_buy_date and b.ipo_date is null )  ) 
+                  and trading_code is not null
+                then b.trading_code
+                else
+                  a.secu_intl
+              end secu_intl , 
+            a.biz_code , 
+            a.share_qty , 
+            a.mkt_val , 
+            a.source , 
+            a.order_type , 
+            a.market , 
+            a.board , 
+      a.secu_acc , 
+            a.trd_time , 
+            a.biz_name , 
+            a.secu_code , 
+            a.secu_cls , 
+            a.matched_qty , 
+            a.matched_price , 
+            a.matched_amt , 
+        a.sett_qty , 
+            a.sett_amt
+         from axuser_pro_tra_match_v00 a left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null  and new_buy_date > 20150101  )  b  on a.secu_intl=b.new_buy_code ; 
+     commit ; 
+
+     execute immediate 'truncate table axuser_pro_tra_share_log_v0' ; 
+     insert into  axuser_pro_tra_share_log_v0
+     select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            case when  (  ( a.trd_date < =b.ipo_date and a.trd_date > b.new_buy_date )  or  ( a.trd_date > b.new_buy_date and b.ipo_date is null )  ) 
+                  and trading_code is not null
+                then b.trading_code
+                else
+                  a.secu_intl
+              end secu_intl , 
+            a.biz_code , 
+            -- 增加蚂蚁退款流水取值不对的特殊处理
+            case when a.biz_code='100050' and b.new_buy_date is not null then 0 else a.share_qty end share_qty , 
+            case when a.biz_code='100050' and b.new_buy_date is not null then 0 else a.mkt_val end mkt_val , 
+            a.source , 
+            a.order_type , 
+            a.market , 
+            a.board , 
+          a.secu_acc , 
+            a.trd_time , 
+            a.biz_name , 
+            a.secu_code , 
+            a.secu_cls , 
+            a.matched_qty , 
+            a.matched_price , 
+            a.matched_amt , 
+        a.sett_qty , 
+            a.sett_amt
+     from axuser_pro_tra_share_log_v00 a left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null  and new_buy_date > 20150101  )  b  on a.secu_intl=b.new_buy_code ; 
+     commit ; 
+
+   delete axuser_pro_tra_match_2020 where trd_date=v_date_1 ; 
+   commit ; 
+  /* insert into axuser_pro_tra_match select * from axuser_pro_tra_match_v0 where trd_date=v_date_1 ; 
+   commit ; 
+   insert into axuser_pro_tra_match select * from axuser_pro_tra_share_log_v0 where trd_date=v_date_1 ; 
+   commit ; */
+   insert into axuser_pro_tra_match_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source , order_type , 
+   market , board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_qty , matched_price , matched_amt , sett_qty , sett_amt ) 
+   select trd_date , cust_code , account , secu_intl , biz_code , sum ( share_qty )  , sum ( mkt_val )  , source , order_type , market , board , 
+          secu_acc , trd_time , biz_name , secu_code , secu_cls , sum ( matched_qty )  , matched_price , sum ( matched_amt )  , sum ( sett_qty )  , sum ( sett_amt ) 
+     from axuser_pro_tra_match_v0
+  where trd_date=v_date_1
+ group by trd_date , cust_code , account , secu_intl , biz_code , source , order_type , market , 
+          board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_price ; 
+   commit ; 
+   insert into axuser_pro_tra_match_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source , order_type , 
+   market , board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_qty , matched_price , matched_amt , sett_qty , sett_amt ) 
+   select trd_date , cust_code , account , secu_intl , biz_code , sum ( share_qty )  , sum ( mkt_val )  , source , order_type , market , board , 
+          secu_acc , trd_time , biz_name , secu_code , secu_cls , sum ( matched_qty )  , matched_price , sum ( matched_amt )  , sum ( sett_qty )  , sum ( sett_amt ) 
+     from axuser_pro_tra_share_log_v0
+  where trd_date=v_date_1
+ group by trd_date , cust_code , account , secu_intl , biz_code , source , order_type , market , 
+          board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_price ; 
+   commit ; 
+
+
+
+     --axods.f_tra_HK_UNSETT t-2   HK_UNSETT
+     --港股交易流水
+     --港股通待交收业务资金已加入需要对冲掉后面资金交割流水
+     --卖出
+     execute immediate 'truncate table axuser_pro_hk_unsett_v0' ; 
+     insert into  axuser_pro_hk_unsett_v0
+     select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            to_char ( a.secu_intl )  secu_intl , 
+            a.trd_id biz_code , 
+            a.sett_qty , 
+            -1*a.sett_amt*nvl ( r.exch_rate , 1 )  matched_amt , 
+            'hkm' source
+      from ridp_report.h_hk_matching_vw a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+      where a.trd_date=v_date_1
+      and a.trd_id in  ( '0B' , '0S' , '1B' , '1S' , '2B' , '2S' , '4B' , '4C' , '4P' , '4Q' , '4R' , '4S' , '4T' , '5S' , '6S' , '6T' , '7B' , '7E' , '7F' , '7I' , '7J' , '7K' , '7L' , '7M' , '7N' , '7P' , '7Q' , '7R' , '7T' , '7U' , '7V' , 
+      '7W' , '7X' , '7Y' , '82' , '84' , '89' , '8B' , '9A' , '9B' , '9D' , '9E' , '9F' , '9G' , '9H' , '9O' , '9P' , '9Q' , '9S' , '9T' , 'G1' , 'GA' , 'GB' , 'GS' , 'HB' , 'HS' , 'IB' , 'IS' , 'JB' , 'JS' , 'LB' , 'LS' , 'NB' , 'NG' , 'NS' , 'NT' , 'OB' , 'OS' , 'SB' , 'SG' , 'SS' , 'TB' , 'TS' , 'UB' , 'US' , 'VB' , 'VS' , 'WB' , 'WS' , 'XB' , 'XS' , 'YB' , 'YS' , 'Z0' , 'Z1' , 'Z2' , 'Z3' , 'ZB' , 'ZC' , 'ZD' , 'ZH' , '22' , '24' , '26' , '27' , '28' , '30' , '33' , '34' , '35' , '36' , '37' , '38' , '39' , '40' , '41' , '42' , '43' , '44' , '45' , '98' , 'X1' , 'HF' , 'EZ' , 'ZM' , 'ZL' , 'BZ' , 'SZ' , 'BX' , 'SX' , 'DB' , 'DS' , 'BF' , 'SF' , 'BC' , 'SC' , '9W' , '9Y' ) 
+     union all
+      select a.sett_cptl_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            a.trd_id biz_code , 
+            0 sett_qty , 
+            case when a.secu_cls='X' and a.trd_id in  ( '7M' , '7N' )  then 0
+            else -1*a.sett_amt*nvl ( r.exch_rate , 1 ) 
+            end matched_amt , 
+            'tru' source
+       from  axods.f_tra_UN_SETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.sett_cptl_date=r.backup_date
+      where a.sett_cptl_date=v_date_1
+        and a.trd_date=a.backup_date
+        and a.trd_id not in  ( '7V' ) 
+        --and a.secu_cls in  ( 'K' ) 
+     UNION ALL
+      select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            a.trd_id biz_code , 
+            0 sett_qty , 
+            case when a.secu_cls='X' and a.trd_id in  ( '7M' , '7N' )  then 0
+            else a.sett_amt*nvl ( r.exch_rate , 1 ) 
+            end matched_amt , 
+            'tru' source
+       from  axods.f_tra_UN_SETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+      where a.trd_date=v_date_1
+        and a.trd_date=a.backup_date
+        and a.trd_id not in  ( '7V' ) 
+     union all
+     select a.sett_share_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            to_char ( a.secu_intl )  secu_intl , 
+            a.trd_id biz_code , 
+            a.sett_qty , 
+            -1*a.sett_amt*nvl ( r.exch_rate , 1 )  matched_amt , 
+            't7v' source
+       from  axods.f_tra_UN_SETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+      where a.sett_share_date=v_date_1
+        and a.trd_date=a.backup_date and trd_id in  ( '7V' ) 
+     union all
+     select a.sett_cptl_date trd_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            a.trd_id biz_code , 
+            0 sett_qty , 
+            -1* a.sett_amt*nvl ( r.exch_rate , 1 )  matched_amt , 
+            'hku' source
+       from axods.f_tra_HK_UNSETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.sett_cptl_date=r.backup_date
+      where a.sett_cptl_date=v_date_1
+        and a.trd_date=a.backup_date
+        and a.trd_id in  ( '0S' , '0B' , 'LS' , 'LB' ) 
+     union all
+     select a.trd_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            a.trd_id biz_code , 
+            0 sett_qty , 
+            a.sett_amt*nvl ( r.exch_rate , 1 )  matched_amt , 
+            'hku' source
+       from axods.f_tra_HK_UNSETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+      where a.trd_date=v_date_1
+        and a.trd_date=a.backup_date
+        and a.trd_id in  ( '0S' , '0B' , 'LS' , 'LB' ) 
+         ; 
+     commit ; 
+--待交收数量修正
+    execute immediate 'truncate table axuser_pro_hk_unsett_v00' ; 
+    insert into  axuser_pro_hk_unsett_v00
+    select d.trd_date , d.cust_code , d.account , d.secu_intl , d.biz_code , d.sett_qty , d.matched_amt ,  d.source
+     from
+       (  select a.trd_date , a.cust_code , a.account , to_char ( a.secu_intl )  secu_intl , 
+            a.trd_id biz_code , a.sett_qty , -1*a.sett_amt *nvl ( r.exch_rate , 1 )  matched_amt , 
+            'tru' source , c.order_id
+       from  axods.f_tra_UN_SETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+       left join  ( select * from ridp_report.h_matching_vw where trd_date =v_date_1  )  c on a.order_id=c.order_id
+      where a.trd_date=v_date_1
+        and a.trd_date=a.backup_date )  d
+     where d.order_id is null
+ union all
+      select d.trd_date , d.cust_code , d.account , to_char ( d.secu_intl )  secu_intl , d.biz_code , d.sett_qty , d.matched_amt ,  d.source
+      from
+        ( select a.trd_date , a.cust_code ,  a.account , a.secu_intl , a.trd_id biz_code , 
+            a.sett_qty , -1*a.sett_amt*nvl ( r.exch_rate , 1 )  matched_amt , 
+            'hku' source , c.order_id order_id
+       from axods.f_tra_HK_UNSETT a left join  axuser_exch_rate_v0 r on a.currency=r.currency and a.trd_date=r.backup_date
+       left join   ( select * from ridp_report.h_hk_matching_vw where trd_date =v_date_1  ) c on a.order_id=c.order_id
+      where a.trd_date=v_date_1
+        and a.trd_date=a.backup_date   )  d
+      where d.order_id is null
+       ; 
+
+
+     --场外交易6 , 27 , 28 , 33 , 34 , 35
+     execute immediate 'truncate table axuser_pro_fund_match_v0' ; 
+     insert into  axuser_pro_fund_match_v0
+     select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+           'cash_tra' fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            case when a.fund_vol > =0 and trd_id not in  ( '43' )  then abs ( a.MATCHED_VOL )  else -1*abs ( a.MATCHED_VOL )  end MATCHED_VOL , 
+            case when a.fund_vol > =0 and trd_id not in  ( '43' )  then
+                  ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) 
+            else  ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) *-1
+            end matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a  inner join   ( select * from ridp_report.cptl_log_vw where biz_code in  ( 1125022 , 1125043 )  and sett_date =v_date_1 ) b on a.account=b.account and a.cptl_sn=b.serial_no
+                                             left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+      where a.trd_id in  ( '22' , '43' ) 
+        AND A.remark like '0000%'
+        and a.cfm_date=v_date_1
+        and a.fund_code  in  ( 'AD0007' , '000750' ) 
+     union all
+     select a.amt_sett_date cfm_date , 
+            a.cust_code , 
+            a.account , 
+           'cash_tra' fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            -1*abs ( a.MATCHED_VOL )  MATCHED_VOL , 
+             ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) *-1 matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a inner join   ( select * from ridp_report.cptl_log_vw where biz_code in  ( 1125043 )  and sett_date =v_date_1 ) b on a.account=b.account and a.cptl_sn=b.serial_no    --20181115
+                                            left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+      where a.trd_id in  ( '43' ) 
+        AND A.remark like '0000%'
+        and a.amt_sett_date=v_date_1
+        and to_char ( a.fund_intl )  like '9970%'
+     union all
+     select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+            to_char ( a.fund_intl )  fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            /*case when a.fund_vol > =0 and trd_id not in  ( '43' )  then abs ( a.MATCHED_VOL )  else -1*abs ( a.MATCHED_VOL )  end MATCHED_VOL , */--20181101
+            case when a.fund_vol > =0  then abs ( a.MATCHED_VOL )  else -1*abs ( a.MATCHED_VOL )  end MATCHED_VOL , 
+            case when a.trd_id in  ( '44' , '45' )  then  0
+            else
+                 /*case when a.fund_vol > =0 and trd_id not in  ( '43' )  then*/--20181101
+                   case when a.fund_vol > =0 then
+                       ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) 
+                 else  ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) *-1
+                 end
+            end matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+        left join trakgdb.funds f on a.fund_intl=f.fund_intl
+      where -- ( 
+             a.trd_id in  ( '22' , '24' , '42' , '25' , '26' , '27' , '28' , '33' , '34' , '35' , '36' , '37' , '38' , '39' , '44' , '45' , '50' )      --20190419
+            -- or  (  (  trim ( f.fund_sort )  not in  ( '7' )  and to_char ( a.fund_intl )  not like '9970%' )  and a.trd_id='43' ) 
+            -- ) 
+        AND A.remark like '0000%'
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        and a.cfm_date=v_date_1
+        union all
+        select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+            to_char ( a.fund_intl )  fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            a.MATCHED_VOL , 
+            case when a.MATCHED_VOL=0 then  -1*ABS ( a.matched_amt ) 
+                -- when a.MATCHED_VOL > 0 then ABS ( a.matched_vol*nvl ( h.nav , 0 )  ) 
+                when a.MATCHED_VOL > 0 then 0  --20190419
+            end matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a  left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+        left join trakgdb.funds f on a.fund_intl=f.fund_intl
+      where  trim ( f.fund_sort )  not in  ( '7' ) 
+        and to_char ( a.fund_intl )  not like '9970%'
+        and a.trd_id='43'
+        AND A.remark like '0000%'
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        and a.cfm_date=v_date_1
+        union all
+        select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' fund_intl , 
+            'cash_tra' fund_code , 
+            a.trd_id biz_code , 
+            0 MATCHED_VOL , 
+            ABS ( a.matched_amt )  matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a
+        left join trakgdb.funds f on a.fund_intl=f.fund_intl
+      where  trim ( f.fund_sort )  not in  ( '7' ) 
+        and to_char ( a.fund_intl )  not like '9970%'
+        and a.trd_id='43'
+        and a.MATCHED_VOL=0
+        AND A.remark like '0000%'
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        and a.cfm_date <  > a.amt_sett_date
+        and a.cfm_date=v_date_1
+        union all
+        select a.amt_sett_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' fund_intl , 
+            'cash_tra' fund_code , 
+            a.trd_id biz_code , 
+            0 MATCHED_VOL , 
+            -1*ABS ( a.matched_amt )  matched_amt , 
+            'fdm' source
+        from ridp_report.fund_matching_vw a inner join  ( select * from ridp_report.cptl_log_vw where biz_code in  ( 1125043 )  and sett_date =v_date_1 ) b on a.account=b.account and a.cptl_sn=b.serial_no
+        left join trakgdb.funds f on a.fund_intl=f.fund_intl
+      where  trim ( f.fund_sort )  not in  ( '7' ) 
+        and to_char ( a.fund_intl )  not like '9970%'
+        and a.trd_id='43'
+        and a.MATCHED_VOL=0
+        AND A.remark like '0000%'
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        and a.cfm_date <  > a.amt_sett_date
+        and a.amt_sett_date=v_date_1 ; 
+     commit ; 
+
+
+      --take fund cash flow
+     execute immediate 'truncate table axuser_pro_fund_unsett_v0' ; 
+     insert into  axuser_pro_fund_unsett_v0
+     select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+            'cash_tra' fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            0 MATCHED_VOL , 
+            ABS ( a.matched_amt )  matched_amt , 
+            'fdu' source
+        from ridp_report.fund_matching_vw a left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+      where a.trd_id in  ( '24' , '42' ) 
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        AND A.remark like '0000%'
+        and a.cfm_date=v_date_1 ; 
+     commit ; 
+
+     --修正125022 天利宝流水问题
+
+
+      --+交易
+      --修正基金认购持仓延期到账问题
+
+     execute immediate 'truncate table axuser_pro_fund_correct_v0' ; 
+     insert into  axuser_pro_fund_correct_v0
+     select  a.cfm_date , 
+             a.cust_code , 
+             a.account , 
+             case when  trd_id='20' then
+               'cash_tra'
+             else
+               to_char ( a.fund_intl ) 
+             end fund_intl , 
+             trd_id biz_code , 
+             case when trd_id='20' then
+               0
+             else a.matched_vol
+             end matched_vol , 
+             case when trd_id='20' then -1*abs ( nvl ( b.cptl_amt , a.matched_amt )  ) 
+             else abs ( a.matched_amt ) 
+             end matched_amt , 
+             'fcr' source
+        from ridp_report.fund_matching_vw a left join   ( select * from ridp_report.cptl_log_vw where biz_code=1125020 and sett_date =v_date_1 ) b on a.account=b.account and a.cptl_sn=b.serial_no
+      where a.trd_id in  ( '20' , '30' ) 
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        AND A.remark like '0000%'
+        and a.cfm_date=v_date_1 ; 
+     commit ; 
+
+     --OTC非交易变动
+     execute immediate 'truncate table axuser_pro_otc_pre_log_v0' ; 
+     insert into  axuser_pro_otc_pre_log_v0
+     select  sett_date , 
+             cust_code , 
+             cuacct_code , 
+             --case when trd_id in ( 'C01' , 'C02' )  then 'cash_tra'
+             --else to_char ( inst_sno ) 
+            -- end inst_sno , 
+             to_char ( inst_sno )   inst_sno , 
+             trd_id , 
+            -- case when trd_id in ( 'C01' , 'C02' )  then 0
+            -- else cfm_qty
+            -- end cfm_qty , 
+             cfm_qty , 
+             --case when trd_id in ( 'C01' , 'C02' )  then sett_amt/100
+             --else cfm_qty/100*get_otc_net ( sett_date , inst_sno ) 
+             --end mkt_val , 
+              cfm_qty/100*get_otc_net ( sett_date , inst_sno )  mkt_val , 
+            -- cfm_amt/100 mkt_val , 
+             'olg' source
+        from   ( select * from otcnewsett.otc_pre_deal_result union all select * from otcnewsetthis.otc_pre_deal_result_his ) 
+      -- where trd_id in  ( '126' , '127' , '128' , '133' , '134' , '135' , '136' , '137' , '138' , 'C01' , 'C02' , '343' ) 
+        where  ( trd_id in  ( '126' , '127' , '128' , '133' , '134' , '135' , '136' , '137' , '138' )  or  ( trd_id='343' and biz_code <  > 53000136 )  ) 
+         and sett_date=v_date_1 ; 
+     commit ; 
+
+     --OTC交易流水
+     execute immediate 'truncate table axuser_pro_otc_correct_v0' ; 
+     insert into  axuser_pro_otc_correct_v0
+     select  a.sett_date , 
+             a.cust_code , 
+             a.cuacct_code , 
+            -- case when a.trd_id='110' then
+            --   'cash_tra'
+            -- else
+            --  to_char ( a.inst_sno ) 
+            -- end inst_sno , 
+             to_char ( a.inst_sno )  inst_sno , 
+             a.trd_id , 
+             --case when a.trd_id='110' then
+             --  0
+            -- else a.cfm_qty/100
+             --end cfm_qty , 
+           --  case when a.cfm_vol+a.vol_bal_efct=0 then 0
+
+            case when trd_id='343' then 0
+                 when trd_id in  ( '345' , '346' , '350' , '112' , '113' , '20S' , '342' )  then -1*abs ( a.cfm_vol/100 ) 
+             else
+             a.cfm_vol/100
+             end cfm_qty , 
+            -- case when a.trd_id='110' then -1*abs ( cfm_amt/100 ) 
+             --else abs ( cfm_amt/100 ) 
+            -- end mkt_val , 
+            -- case when a.cfm_vol+a.vol_bal_efct=0 then 0
+             case when trd_id in  ( '343' , '346' , '350' , '112' , '113' , '20S' , '342' )  then -1*abs ( cfm_amt/100 ) 
+                  when trd_id='130' and nvl ( cfm_amt , 0 ) =0 then abs ( a.cfm_vol/100 ) *nvl ( a.cfm_price , 0 ) /10000
+             else abs ( cfm_amt/100 ) 
+             end mkt_val , 
+             'ocm' source
+        from  ( select a.* , row_number (  ) over ( partition by cuacct_code , trd_id , app_sno , sett_date , inst_sno order by sno desc  )  rn
+                from ridp_report.otc_asset_log_vw  a
+               where  ( trd_id in  ( '130' , '111' , '112' , '113' , '115' , '20B' , '20S' , '342' , '344' , '345' , '350' , '346' )   or  ( trd_id='343' and biz_code <  > 53000136 )  ) 
+                 and sett_date=v_date_1 )  a
+        where rn=1 ; 
+      commit ; 
+
+
+
+     --take  cash flow
+     execute immediate 'truncate table axuser_pro_tra_flow_daily' ; 
+     insert into  axuser_pro_tra_flow_daily
+     select sett_date trd_date , cust_code , account , secu_intl , biz_code , share_qty , cptl_amt mkt_val , source from axuser_pro_tra_cptl_log_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , biz_code , share_qty , mkt_val , source from axuser_pro_tra_share_log_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , biz_code , share_qty , mkt_val , source from axuser_pro_tra_match_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , biz_code , sett_qty share_qty , matched_amt mkt_val , source from axuser_pro_hk_unsett_v0
+     union all
+     select trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , biz_code , sett_qty share_qty , matched_amt mkt_val , source from axuser_pro_hk_unsett_v00
+     union all
+     select cfm_date trd_date , cust_code , account , to_char ( fund_intl )  secu_intl , biz_code , matched_vol share_qty , matched_amt mkt_val , source from axuser_pro_fund_match_v0
+     union all
+     select cfm_date trd_date , cust_code , account , to_char ( fund_intl )  secu_intl , biz_code , matched_vol share_qty , matched_amt mkt_val , source from axuser_pro_fund_unsett_v0
+     union all
+     select cfm_date trd_date , cust_code , account , to_char ( fund_intl )  secu_intl , biz_code , matched_vol share_qty , matched_amt mkt_val , source from axuser_pro_fund_correct_v0
+     union all
+     select sett_date trd_date , cust_code , cuacct_code account , inst_sno secu_intl , trd_id biz_code , cfm_qty share_qty , mkt_val , source from axuser_pro_otc_pre_log_v0
+     union all
+     select sett_date trd_date , cust_code , cuacct_code account , inst_sno secu_intl , trd_id biz_code , cfm_qty share_qty , mkt_val , source from axuser_pro_otc_correct_v0 ; 
+     commit ; 
+
+     --log
+     update axuser_prf_log set pro_tra_flow=sysdate where id=v_id ; 
+     commit ; 
+
+   execute immediate 'truncate table QM_TRA_PRO_ASSET_DAILY' ; 
+   insert into  QM_TRA_PRO_ASSET_DAILY
+   select a.trd_date , cust_code , account , to_char ( a.secu_intl )  secu_intl , case when secu_intl like '%cash%' then 'cash' when source in  ( 'fnd' , 'otc' , 'bj' , 'bj ' )  then source else 'tra' end source , sum ( share_qty )  end_qty , sum ( mkt_val )  end_amt  from axuser_all_tra_share_daily a
+     join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+     where trd_date=v_date_1
+     group by a.trd_date , cust_code , account , to_char ( a.secu_intl )  , case when secu_intl like '%cash%' then 'cash' when source in  ( 'fnd' , 'otc' , 'bj' , 'bj ' )  then source else 'tra' end ; 
+   COMMIT ; 
+
+   execute immediate 'truncate table QC_TRA_PRO_ASSET_DAILY' ; 
+   insert into  QC_TRA_PRO_ASSET_DAILY
+   select v_date_1 as back_date  , cust_code , account , to_char ( secu_intl )  secu_intl , case when secu_intl like '%cash%' then 'cash' when source in  ( 'fnd' , 'otc' , 'bj ' )  then source else 'tra' end source , sum ( share_qty )  pre_qty , sum ( mkt_val )  pre_amt from axuser_tra_share_2020 a
+      join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+     where trd_date=v_date_2
+      group by a.trd_date , cust_code , account , to_char ( secu_intl )  , case when secu_intl like '%cash%' then 'cash' when source in  ( 'fnd' , 'otc' , 'bj ' )  then source else 'tra' end ; 
+      COMMIT ; 
+
+    execute immediate 'truncate table TRA_PRO_CASH_FLOW_DAILY' ; 
+   insert into  TRA_PRO_CASH_FLOW_DAILY
+   select a.trd_date , a.cust_code , a.account , to_char ( secu_intl )  secu_intl  , sum ( share_qty )  cash_flow_qty , sum ( a.mkt_val )  cash_flow_amt , sum ( case when a.mkt_val < =0 then 0 else a.mkt_val end )  as positive_amt
+      , case when secu_intl like '%cash%' then 'cash'
+           when a.source in  ( 'fdm' , 'fcr' )  and  secu_intl not like '%cash%' then 'fnd'
+           when a.source in  ( 'olg' , 'ocm' )  then 'otc'
+         else 'tra' end  source
+     from  axuser_pro_tra_flow_daily a join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+     where trd_date=v_date_1
+     group by a.trd_date , a.cust_code , a.account , to_char ( secu_intl )  , case when secu_intl like '%cash%' then 'cash'
+           when a.source in  ( 'fdm' , 'fcr' )  and  secu_intl not like '%cash%' then 'fnd'
+           when a.source in  ( 'olg' , 'ocm' )  then 'otc'
+         else 'tra' end ; 
+     COMMIT ; 
+
+
+     --take tra profit
+     execute immediate 'truncate table axuser_pro_tra_profit_daily' ; 
+     insert into  axuser_pro_tra_profit_daily
+     select decode ( i.trd_date , null , cash.trd_date , i.trd_date )  trd_date , 
+            decode ( i.cust_code , null , cash.cust_code , i.cust_code )  cust_code , 
+            decode ( i.account , null , cash.account , i.account )  account , 
+            decode ( i.secu_intl , null , cash.secu_intl , i.secu_intl )  secu_intl , 
+            decode ( i.source , null , cash.source , i.source )  source , 
+            nvl ( i.end_qty , 0 )  end_qty , 
+            nvl ( i.pre_qty , 0 )  pre_qty , 
+            nvl ( cash.cash_flow_qty , 0 )  cash_flow_qty , 
+            nvl ( i.end_amt , 0 )  end_amt , 
+            nvl ( i.pre_amt , 0 )  pre_amt , 
+            nvl ( cash.cash_flow_amt , 0 )  cash_flow_amt , 
+            nvl ( cash.positive_amt , 0 )  positive_amt , 
+             ( nvl ( i.end_qty , 0 ) -nvl ( i.pre_qty , 0 ) -nvl ( cash.cash_flow_qty , 0 )  )  qty_exception , 
+             case when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 ) =0 then 0
+                 when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  < 0 then -2
+            else
+            ( nvl ( end_amt , 0 ) +abs ( nvl ( cash.cash_flow_amt , 0 ) -nvl ( cash.positive_amt , 0 )  )  ) /decode ( nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  , 0 , 1 , nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  )  -1  end profit , 
+             ( nvl ( i.end_amt , 0 ) -nvl ( i.pre_amt , 0 ) -nvl ( cash.cash_flow_amt , 0 )  )  profit_amt from
+      ( select /*+parallel ( 16 ) */ decode ( t.trd_date , null , t_1.back_date , t.trd_date )  trd_date , 
+             decode ( t.cust_code , null , t_1.cust_code , t.cust_code )  cust_code , 
+             decode ( t.account , null , t_1.account , t.account )  account , 
+             decode ( t.secu_intl , null , t_1.secu_intl , t.secu_intl )  secu_intl , 
+             decode ( t.source , null , t_1.source , t.source )  source , 
+             nvl ( t.end_qty , 0 )  end_qty , 
+             nvl ( t_1.pre_qty , 0 )  pre_qty , 
+             nvl ( t.end_amt , 0 )  end_amt , 
+             nvl ( t_1.pre_amt , 0 )  pre_amt
+     from
+      ( select t.trd_date , t.cust_code , t.account , t.secu_intl , case when t.source='bj ' then 'fnd' else t.source end as source , t.end_qty , 
+             t.end_amt from QM_TRA_PRO_ASSET_DAILY t where t.source <  > 'bj ' )  t
+     full join
+      ( select t_1.back_date , t_1.cust_code , t_1.account , t_1.secu_intl , case when t_1.source='bj ' then 'fnd' else t_1.source end as source , t_1.pre_qty , 
+             t_1.pre_amt from QC_TRA_PRO_ASSET_DAILY t_1 where t_1.source <  > 'bj ' )  t_1 
+     on  ( t.trd_date=t_1.back_date and t.cust_code=t_1.cust_code and t.account=t_1.account and t.secu_intl=t_1.secu_intl and t.source=t_1.source )  ) i
+     full  join
+     TRA_PRO_CASH_FLOW_DAILY cash on  ( i.trd_date=cash.trd_date and i.cust_code=cash.cust_code and i.account=cash.account and i.secu_intl=cash.secu_intl and i.source=cash.source )  ; 
+     commit ; 
+
+     insert into  axuser_pro_tra_profit_daily
+      select pt.trd_date , 
+        pt.cust_code , 
+        pt.account , 
+        pt.secu_intl , 
+        pt.source , 
+        sum ( end_qty )  as end_qty , 
+        sum ( pre_qty )  as pre_qty , 
+        sum ( cash_flow_qty )  as cash_flow_qty , 
+        sum ( end_amt )  as end_amt , 
+        sum ( pre_amt )  as pre_amt , 
+        sum ( cash_flow_amt )  as cash_flow_amt , 
+        sum ( positive_amt )  as positive_amt , 
+        0 qty_exception , 
+        sum ( profit_amt )  / sum ( cost )  as profit , 
+        sum ( profit_amt )  as profit_amt
+   from  ( select a.trd_date trd_date , 
+                a.cust_code cust_code , 
+                a.account account , 
+                a.secu_intl secu_intl , 
+                'fnd' source , 
+                0 end_qty , 
+                0 pre_qty , 
+                0 cash_flow_qty , 
+                0 end_amt , 
+                0 pre_amt , 
+                -1 *  ( a.matched_amt - round ( a.matched_amt / 100 ,  0 )  * 100 )  as cash_flow_amt , 
+                0 positive_amt , 
+                0 qty_exception , 
+                 ( round ( a.matched_amt / 100 ,  0 )  * 100 )  as cost , 
+                a.matched_amt - round ( a.matched_amt / 100 ,  0 )  * 100 profit_amt
+           from trakgdb.h_matching a
+          where a.trd_date = v_date_1
+            and a.trd_id in  ( '9P' ) 
+            and a.account  <  >  11100000006 )  pt
+  group by trd_date ,  cust_code ,  secu_intl ,  source ,  account ; 
+
+    commit ; 
+    
+     --log
+     update axuser_prf_log set pro_tra_prf=sysdate where id=v_id ; 
+     commit ; 
+
+     --资金流水
+     execute immediate 'truncate table axuser_all_tra_cptl_log_v0' ; 
+     insert into  axuser_all_tra_cptl_log_v0
+     select a.sett_date , 
+          --v_date_1 sett_date , 
+            a.user_code cust_code , 
+            a.account , 
+            'cash_tra' secu_intl , 
+            to_char ( a.biz_code )  biz_code , 
+            a.cptl_amt*nvl ( e.exch_rate , 1 )  cptl_amt , 
+            'clg' source
+       from ridp_report.cptl_log_vw  a  left join axuser_exch_rate_v0 e on a.currency=e.currency and a.sett_date=e.backup_date
+      where a.sett_date=v_date_1
+         -- a.sett_date > v_date_2 and a.sett_date < =v_date_1
+        and a.biz_code in  ( 5224 , 2000 , 2010 , 2020 , 2025 , 2030 , 2031 , 2100 , 2132 , 2133 , 2134 , 2135 , 2136 , 3120 , 3124 , 3125 , 2110 , 2120 , 2125 , 2130 , 2131 , 2200 , 2210 , 2220 , 2230 , 2235 , 3000 , 3100 , 3101 , 3102 , 3160 , 3161 , 5206 , 5207 , 5620 , 6310 , 4600 , 5209 , 5212 , 3224 , 3227 , 3228 , 3121 , 1125030 )  ;  --去掉150 20181115  增加125030 20190511 去掉30330 20190911
+     commit ; 
+
+     --场内非交易
+     execute immediate 'truncate table axuser_all_tra_share_log_v0' ; 
+     insert into  axuser_all_tra_share_log_v0
+      SELECT /*+parallel ( a , 16 ) */
+           a.sett_date , 
+           a.cust_code , 
+           a.account , 
+           a.secu_intl , 
+           to_char ( a.biz_code )  biz_code , 
+          -- case when nvl ( a.trd_cost , 0 ) =0 then a.share_qty*nvl ( p.last_price , 0 )  else a.trd_cost end trd_cost , 
+          case when a.biz_code=100050 and k.new_buy_date is not null then 0 else a.share_qty*nvl ( p.last_price , 0 )  end trd_cost , 
+         -- a.share_qty*nvl ( p.last_price , 0 )   trd_cost , 
+           'slg' source
+     FROM ridp_report.share_log_vw a inner join  trakgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                                     left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+                                     left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null  and new_buy_date > 20150101  )  k  on a.secu_intl=k.new_buy_code
+     WHERE  a.sett_date =v_date_1
+        AND  (  biz_code IN  ( 151071 , 151313 , 4600 , 100021 , 100022 , 100080 , 110030 , 120030 , 110040 , 110010 , 110020 , 120010 , 120020 , 120040 , 110040 , 151014 , 151011 , 130060 , 130065 , 140010 , 140020 , 140030 , 140040 , 140050 , 140060 , 171500 , 171540 , 171550 , 1125026 , 1125027 , 1125028 , 171510 , 100000 , 4800 , 151244 , 100010 , 151012 , 151013 , 151240 , 151204 , 151312 ) 
+             or  ( biz_code=104640 and remark not like '权益' ) 
+             or  ( biz_code=100050 and  ( b.secu_cls not in  ( '7' )  or b.secu_name not like '%发债' )  ) 
+              )  ; 
+     commit ; 
+
+     --场外非交易6 , 27 , 28 , 33 , 34 , 35
+     execute immediate 'truncate table axuser_all_fund_match_v0' ; 
+     insert into  axuser_all_fund_match_v0
+     select a.cfm_date , 
+            a.cust_code , 
+            a.account , 
+            a.fund_intl , 
+            a.fund_code , 
+            a.trd_id biz_code , 
+            case when a.fund_vol > =0 then abs ( a.MATCHED_VOL )  else -1*abs ( a.MATCHED_VOL )  end MATCHED_VOL , 
+            case when a.fund_vol > =0 then
+                  ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) 
+            else  ( CASE WHEN a.matched_amt > 0 THEN ABS ( a.matched_amt )  ELSE ABS ( a.matched_vol*nvl ( h.nav , 0 )  )  end ) *-1
+            end matched_amt , 
+            'flg' source
+        from ridp_report.fund_matching_vw a left join hist_fund_nav_v0 h on a.fund_intl=h.fund_intl and h.real_trd_date=a.cfm_date
+      where a.trd_id in  ( '26' , '27' , '28' , '33' , '34' , '35' ) 
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        AND A.remark like '0000%'
+        and a.cfm_date =v_date_1 ; 
+     commit ; 
+
+
+      --修正基金认购持仓延期到账问题
+
+     execute immediate 'truncate table axuser_all_fund_correct_v0' ; 
+     insert into  axuser_all_fund_correct_v0
+     select  a.cfm_date , 
+             a.cust_code , 
+             a.account , 
+             a.fund_intl , 
+             trd_id biz_code , 
+             0 matched_vol , 
+             case when trd_id='20' then -1*abs ( nvl ( b.cptl_amt , a.matched_amt )  ) 
+             else abs ( a.matched_amt ) 
+             end matched_amt , 
+             'fcr' source
+        from ridp_report.fund_matching_vw a left join   ( select * from ridp_report.cptl_log_vw where biz_code=1125020 and sett_date =v_date_1 ) b on a.account=b.account and a.cptl_sn=b.serial_no
+      where a.trd_id in  ( '20' , '30' ) 
+        and a.fund_code not in  ( 'AD0007' , '000750' ) 
+        AND A.remark like '0000%'
+        and a.cfm_date =v_date_1 ; 
+     commit ; 
+
+     --OTC非交易变动
+     execute immediate 'truncate table axuser_all_otc_pre_log_v0' ; 
+     insert into  axuser_all_otc_pre_log_v0
+     select  sett_date , 
+             cust_code , 
+             cuacct_code , 
+             inst_sno , 
+             trd_id , 
+             case when trd_id in ( 'C01' , 'C02' )  then sett_amt/100
+             else cfm_QTY/100*get_otc_net ( sett_date , inst_sno ) 
+             end mkt_val , 
+            -- cfm_amt/100 mkt_val , 
+             'olg' source
+        from   ( select * from otcnewsett.otc_pre_deal_result union all select * from otcnewsetthis.otc_pre_deal_result_his ) 
+       where trd_id in  ( '126' , '127' , '128' , '133' , '134' , '135' , '136' , '137' , '138' , 'C01' , 'C02' ) 
+         and sett_date =v_date_1 ; 
+     commit ; 
+
+     --修正TC认购赎回持仓延期到账问题
+     execute immediate 'truncate table axuser_all_otc_correct_v0' ; 
+     insert into  axuser_all_otc_correct_v0
+     /*select  a.sett_date trd_date , 
+             a.cust_code , 
+             a.cuacct_code , 
+             to_char ( a.inst_sno )  inst_sno , 
+             a.trd_id , 
+             case when a.trd_id='110' then -1*abs ( cfm_amt/100 ) 
+             else abs ( cfm_amt/100 ) 
+             end mkt_val , 
+             'ocr' source
+        from  otcnewsett.otc_pre_deal_result a
+       where trd_id in  ( '110' , '130' ) 
+         and inst_type not in  ( select inst_type from otcts.otc_inst_type_clear_info where trd_id in  ( '110' , '130' )   and mkt_code='9' and clear_mode='5' ) 
+         --and sett_date-trd_date > 1
+         and sett_date =v_date_1
+     union all */
+     select a.sett_date trd_date , 
+             a.cust_code , 
+             a.cuacct_code , 
+             to_char ( a.inst_sno )  inst_sno , 
+             a.trd_id , 
+             -1*abs ( cfm_amt/100 )  mkt_val , 
+             'ocr' source
+      from  ( select * from otcnewsett.otc_pre_deal_result union all select * from otcnewsetthis.otc_pre_deal_result_his )  a
+      where trd_id in  ( '112' , '113' ) 
+        and amt_bk_date <  > sett_date
+        and sett_date =v_date_1
+     union all
+     select  a.amt_bk_date trd_date , 
+             a.cust_code , 
+             a.cuacct_code , 
+             'cash_tra' inst_sno , 
+             a.trd_id , 
+             abs ( cfm_amt/100 )  mkt_val , 
+             'ocr' source
+      from  ( select * from otcnewsett.otc_pre_deal_result union all select * from otcnewsetthis.otc_pre_deal_result_his )  a
+      where trd_id in  ( '112' , '113' ) 
+        and amt_bk_date <  > sett_date
+        and amt_bk_date =v_date_1 ; 
+     commit ; 
+
+
+     --take  cash flow
+     execute immediate 'truncate table axuser_all_tra_flow_daily' ; 
+     insert into  axuser_all_tra_flow_daily
+     select sett_date trd_date , cust_code , account , secu_intl , biz_code , cptl_amt mkt_val , source from axuser_all_tra_cptl_log_v0
+     union all
+     select sett_date trd_date , cust_code , account , to_char ( secu_intl )  , biz_code , trd_cost mkt_val , source from axuser_all_tra_share_log_v0
+     union all
+     select cfm_date trd_date , cust_code , account , to_char ( fund_intl )  secu_intl , biz_code , matched_amt mkt_val , source from axuser_all_fund_match_v0
+     union all
+     select cfm_date trd_date , cust_code , account , to_char ( fund_intl )  secu_intl , biz_code , matched_amt mkt_val , source from axuser_all_fund_correct_v0
+     union all
+     select sett_date trd_date , cust_code , cuacct_code account , to_char ( inst_sno )  secu_intl , trd_id biz_code , mkt_val , source from axuser_all_otc_pre_log_v0
+     union all
+     select trd_date , cust_code , cuacct_code account , to_char ( inst_sno )  secu_intl , trd_id biz_code , mkt_val , source from axuser_all_otc_correct_v0 ; 
+     commit ; 
+
+     --log
+     update axuser_prf_log set all_tra_flow=sysdate where id=v_id ; 
+     commit ; 
+
+     --take tra profit
+   --tra_asset_vw 20190618
+    execute immediate 'truncate table axuser_all_tra_profit_daily' ; 
+     insert into  axuser_all_tra_profit_daily
+     select decode ( i.trd_date , null , cash.trd_date , i.trd_date )  trd_date , 
+             decode ( i.cust_code , null , cash.cust_code , i.cust_code )  cust_code , 
+             decode ( i.account , null , cash.account , i.account )  account , 
+            nvl ( i.end_amt , 0 )  end_amt , 
+            nvl ( i.pre_amt , 0 )  pre_amt , 
+            nvl ( cash.cash_flow_amt , 0 )  cash_flow_amt , 
+            nvl ( cash.positive_amt , 0 )  positive_amt , 
+            case when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 ) =0 then 0
+                 when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  < 0 then -2
+            else
+            ( nvl ( end_amt , 0 ) +abs ( nvl ( cash.cash_flow_amt , 0 ) -nvl ( cash.positive_amt , 0 )  )  ) /decode ( nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  , 0 , 1 , nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  )  -1  end profit , 
+            ( nvl ( i.end_amt , 0 ) -nvl ( i.pre_amt , 0 ) -nvl ( cash.cash_flow_amt , 0 )  )  profit_amt from
+      ( select /*+parallel ( 16 ) */ decode ( t.trd_date , null , t_1.back_date , t.trd_date )  trd_date , 
+             decode ( t.cust_code , null , t_1.cust_code , t.cust_code )  cust_code , 
+             decode ( t.account , null , t_1.account , t.account )  account , 
+             nvl ( t.end_amt , 0 )  end_amt , 
+             nvl ( t_1.pre_amt , 0 )  pre_amt
+     from
+      ( select a.trd_date , cust_code , account , sum ( mkt_val )  end_amt  from
+      ( select trd_date , cust_code , account , mkt_val from tra_asset_vw where trd_date=v_date_1
+     union all
+     select trd_date , cust_code , account , cfm_amt mkt_val  from axods.f_otc_asset_unsett where trd_date=v_date_1 )  a
+     join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+     group by a.trd_date , cust_code , account
+      )  t
+     full join
+      ( select v_date_1 as back_date  , cust_code , account , sum ( mkt_val )  pre_amt
+     from  ( select trd_date , cust_code , account , mkt_val from tra_asset_vw where trd_date=v_date_2
+     union all
+     select trd_date , cust_code , account , cfm_amt mkt_val  from axods.f_otc_asset_unsett where trd_date=v_date_2 )  a
+     join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+      group by a.trd_date , cust_code , account )  t_1 on  ( t.trd_date=t_1.back_date and t.cust_code=t_1.cust_code and t.account=t_1.account )  ) i
+     full  join
+      ( select a.trd_date , a.cust_code , a.account , sum ( a.mkt_val )  cash_flow_amt , sum ( case when a.mkt_val < =0 then 0 else a.mkt_val end )  as positive_amt from  axuser_all_tra_flow_daily a
+     join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+     where trd_date=v_date_1
+     group by a.trd_date , a.cust_code , a.account )  cash on  ( i.trd_date=cash.trd_date and i.cust_code=cash.cust_code and i.account=cash.account )  ; 
+     commit ; 
+
+
+     --log
+     update axuser_prf_log set all_tra_prf=sysdate where id=v_id ; 
+     commit ; 
+
+  --take mts asset
+execute immediate 'truncate table axuser_all_mts_share_tmp_v0' ; 
+insert into axuser_all_mts_share_tmp_v0
+select /*+parallel ( 16 ) */a.backup_date , 
+       a.cust_code , 
+       a.account , 
+       a.secu_intl , 
+      case when a.cust_code in  ( select user_code from jsjystds.users )  then share_bln
+           when a.secu_cls='7' and s.secu_name like '%配债' then  share_otd
+      else
+         ( SHARE_AVL + SHARE_TRD_FRZ + SHARE_OTD - SHARE_OTD_AVL + SHARE_FRZ ) 
+      end  share_qty , 
+       mkt_val , 
+       a.CURRENT_COST , 
+       'mts' source , 
+     a.secu_acc
+from axods.f_rzq_shares  a  inner join rzqkgdb.securities s on a.secu_intl=s.secu_intl
+where a.backup_date=v_date_1
+union all
+ SELECT /*+parallel ( a , 16 ) */
+      a.sett_date backup_date , 
+      a.cust_code , 
+      a.account , 
+      a.secu_intl , 
+      -1*a.share_qty , 
+      0 mkt_val , 
+      0 CURRENT_COST , 
+      'mts' source , 
+    a.secu_acc
+FROM rzqkgdb.share_log a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+WHERE  a.sett_date=v_date_1
+   AND a.biz_code =130010
+  -- and s.secu_cls <  > '7' ;   --20190511
+  --and s.secu_cls not in  ( '7' , 'h' , 'E' )  ;   --20190719 20191016改n
+   and s.secu_cls='0' and s.market='1' and s.board='0' ; 
+commit ; 
+
+--replace new_buy_code to trading_code
+execute immediate 'truncate table axuser_all_mts_share_tmp_v00' ; 
+insert into axuser_all_mts_share_tmp_v00
+select a.BACKUP_DATE , 
+       a.CUST_CODE , 
+       a.ACCOUNT , 
+       case when  (  ( a.backup_date < b.ipo_date and a.backup_date > b.new_buy_date )  or  ( a.backup_date > b.new_buy_date and b.ipo_date is null )  ) 
+             and trading_code is not null
+           then b.trading_code
+           else
+             a.secu_intl
+         end secu_intl , 
+       a.share_qty , 
+       0 mkt_val , 
+       a.CURRENT_COST , 
+       a.source , 
+     a.secu_acc
+   from axuser_all_mts_share_tmp_v0 a  , 
+         ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null and new_buy_date > 20150101  )  b  where a.secu_intl=b.new_buy_code ( + )  ; 
+commit ; 
+
+execute immediate 'truncate table axuser_all_mts_share_v00' ; 
+insert into axuser_all_mts_share_v00
+select /*+parallel ( 16 ) */a.backup_date , 
+       a.cust_code , 
+       a.account , 
+       a.secu_intl , 
+       a.share_qty , 
+       decode ( e.last_price , null , a.share_qty*100 , a.share_qty*e.last_price )  as mkt_val , 
+       a.CURRENT_COST , 
+       'mts' source , 
+     a.secu_acc
+from axuser_all_mts_share_tmp_v00  a left join axuser_secu_price_v0 e on a.secu_intl=e.secu_intl and a.backup_date=e.backup_date
+where a.backup_date=v_date_1 ; 
+commit ; 
+
+execute immediate 'truncate table axuser_all_mts_share_v0' ; 
+insert into axuser_all_mts_share_v0
+select g.BACKUP_DATE , g.CUST_CODE , g.ACCOUNT , g.SECU_INTL , g.SHARE_QTY , g.MKT_VAL , g.CURRENT_COST , g.SOURCE , g.secu_acc , s.secu_code , s.market , s.board from  ( 
+select a.BACKUP_DATE , 
+       a.CUST_CODE , 
+       a.ACCOUNT , 
+       a.secu_intl , 
+       case when  ( a.backup_date > =b.regist_date
+             and a.backup_date < =b.buy_end_date
+             and a.CURRENT_COST <  > 0 ) 
+           then a.share_qty
+           when  ( a.backup_date > =b.regist_date
+             and a.backup_date < =b.buy_end_date
+             and a.CURRENT_COST=0 ) 
+           then 0
+         else  a.share_qty
+         end  share_qty , 
+       case when  ( a.backup_date > =b.regist_date
+             and a.backup_date < =b.buy_end_date
+             and a.CURRENT_COST <  > 0 ) 
+           then a.share_qty*b.stock_share_price
+           when  ( a.backup_date > =b.regist_date
+             and a.backup_date < =b.buy_end_date
+             and a.CURRENT_COST=0 ) 
+           then 0
+         else  a.mkt_val
+         end  mkt_val , 
+       a.CURRENT_COST , 
+       case when  ( a.backup_date > =b.buy_begin_date
+             and a.backup_date < =b.buy_end_date ) 
+           then 'rat'
+         else  a.source
+         end  source , 
+    a.secu_acc
+   from axuser_all_mts_share_v00 a left join  ( select to_number ( c.stock_share_no )  as secu_intl  , c.* from axuser_stock_sell_v0 c where buy_begin_date > 20150101 and buy_begin_date < =v_date_1 and buy_end_date > =v_date_1 )  b on a.secu_intl=b.secu_intl )  g
+      --配股表中同个配股码有多条记录，疑为脏数据，暂从015年开始取数
+    left join trakgdb.securities s on g.secu_intl=s.secu_intl ; 
+commit ; 
+
+
+
+--take mts debt
+execute immediate 'truncate table axuser_all_sl_v0' ; 
+insert into axuser_all_sl_v0
+select a.backup_date , 
+       a.cust_code , 
+       a.account , 
+       a.secu_intl , 
+       case when a.contract_type='1' then -1*abs ( a.contract_qty-a.repaid_qty ) 
+            when a.contract_type='0' then 0
+       end share_qty , 
+       case when a.contract_type='1' then
+            -1* ( nvl ( b.last_price , 0 ) *abs ( a.contract_qty-a.repaid_qty ) +a.CONTRACT_INT+a.CONTRACT_FEE-a.repaid_int+a.free_int ) 
+            when a.contract_type='0' then
+            -1*abs ( nvl ( a.contract_amt , 0 ) +nvl ( a.contract_fee , 0 ) +nvl ( a.CONTRACT_INT , 0 ) -nvl ( a.repaid_amt , 0 ) -nvl ( a.repaid_int , 0 ) +nvl ( a.free_int , 0 ) -nvl ( a.repaid_free_int , 0 )  ) 
+       end mkt_val , 
+       'deb' source , 
+     a.secu_acc , 
+     a.secu_code , 
+     a.market , 
+     a.board
+     from axods.f_rzq_fisl_contract_opened a inner join axuser_secu_price_v0 b on a.secu_intl=b.secu_intl and a.backup_date=b.backup_date
+ where a.backup_date=v_date_1
+   and a.contract_type in  ( '1' ) 
+   and a.contract_status in  ( '0' , '1' )  ; 
+commit ; 
+
+
+--take mts capital
+execute immediate 'truncate table axuser_all_mts_cptl_v0' ; 
+insert into axuser_all_mts_cptl_v0
+SELECT  /*+parallel ( d , 8 ) */
+        d.backup_date , 
+        d.user_code cust_code , 
+        d.account , 
+        'cash_mts' secu_intl , 
+         ( NVL ( d.AVAILABLE , 0 ) +NVL ( d.TRD_FRZ , 0 ) +NVL ( d.FROZEN , 0 ) +NVL ( d.OUTSTANDING , 0 ) -NVL ( d.OTD_AVL , 0 ) +NVL ( d.CR_AMT , 0 ) -NVL ( d.DR_AMT , 0 )  ) *nvl ( e.exch_rate , 1 )  capital , 
+        'mtc' source
+    FROM axods.f_rzq_capital d left join axuser_exch_rate_v0 e on d.currency=e.currency and d.backup_date=e.backup_date
+   WHERE d.backup_date=v_date_1 ; 
+commit ; 
+
+
+execute immediate 'truncate table axuser_all_fi_v0' ; 
+insert into axuser_all_fi_v0
+select a.backup_date , 
+       a.cust_code , 
+       a.account , 
+       'cash_mts' secu_intl , 
+       case when a.contract_type='1' then
+            -1* ( nvl ( b.last_price , 0 ) *abs ( a.contract_qty-a.repaid_qty ) +a.CONTRACT_INT+a.CONTRACT_FEE-a.repaid_int+a.free_int ) 
+            when a.contract_type='0' then
+            -1*abs ( nvl ( a.contract_amt , 0 ) +nvl ( a.contract_fee , 0 ) +nvl ( a.CONTRACT_INT , 0 ) -nvl ( a.repaid_amt , 0 ) -nvl ( a.repaid_int , 0 ) +nvl ( a.free_int , 0 ) -nvl ( a.repaid_free_int , 0 )  ) 
+       end capital , 
+       'det' source
+     from axods.f_rzq_fisl_contract_opened a inner join axuser_secu_price_v0 b on a.secu_intl=b.secu_intl and a.backup_date=b.backup_date
+ where a.backup_date=v_date_1
+   and a.contract_type in  ( '0' ) 
+   and a.contract_status in  ( '0' , '1' )  ; 
+ commit ; 
+
+     delete from axuser_pro_mts_asset_2020 where trd_date=v_date_1 ; 
+   commit ; 
+   insert into axuser_pro_mts_asset_2020 ( TRD_DATE , CUST_CODE , ACCOUNT , SECU_INTL , SHARE_QTY , MKT_VAL , SOURCE , secu_acc , secu_code , market , board ) 
+   select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_mts_share_v0
+     union all
+     select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source , secu_acc , secu_code , market , board from axuser_all_sl_v0
+     union all
+     select backup_date trd_date , cust_code , account , secu_intl , 0 share_qty , capital mkt_val , source , '' , '' , '' , '' from axuser_all_mts_cptl_v0
+     union all
+     select backup_date trd_date , cust_code , account , secu_intl , 0 share_qty , capital mkt_val , source , '' , '' , '' , '' from axuser_all_fi_v0 ; 
+     commit ; 
+
+--take mts asset
+execute immediate 'truncate table axuser_all_mts_share_daily' ; 
+insert into axuser_all_mts_share_daily
+select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_mts_share_v0
+union all
+select backup_date trd_date , cust_code , account , to_char ( secu_intl )  secu_intl , share_qty , mkt_val , source from axuser_all_sl_v0
+union all
+select backup_date trd_date , cust_code , account , secu_intl , 0 share_qty , capital mkt_val , source from axuser_all_mts_cptl_v0
+union all
+select backup_date trd_date , cust_code , account , secu_intl , 0 share_qty , capital mkt_val , source from axuser_all_fi_v0 ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set mts_share=sysdate where id=v_id ; 
+     commit ; 
+
+--take mts capital log
+execute immediate 'truncate table axuser_all_mts_cptl_log_v0' ; 
+insert into axuser_all_mts_cptl_log_v0
+select a.sett_date , 
+       a.user_code cust_code , 
+       a.account , 
+       'cash_mts' secu_intl , 
+       to_char ( a.biz_code )  biz_code , 
+       a.cptl_amt , 
+       'clg' source
+  from rzqkgdb.cptl_log  a
+ where a.sett_date=v_date_1
+   and a.biz_code in  ( 2000 , 2010 , 2020 , 2025 , 2030 , 2031 , 2100 , 2132 , 2133 , 2134 , 2135 , 2136 , 3120 , 3124 , 3125 , 2110 , 2120 , 2125 , 2130 , 2131 , 2200 , 2210 , 2220 , 2230 , 
+       2235 , 3000 , 3100 , 3101 , 3102 , 3160 , 3161 , 5206 , 5207 , 5620 , 6310 , 4600 , 5209 , 5212 , 3224 , 3121 )  ; 
+commit ; 
+
+--take share log
+execute immediate 'truncate table  axuser_all_mts_share_log_v0' ; 
+insert into axuser_all_mts_share_log_v0
+ SELECT /*+parallel ( a , 16 ) */
+      a.sett_date , 
+      a.cust_code , 
+      a.account , 
+      a.secu_intl , 
+      to_char ( a.biz_code )  biz_code , 
+      case when a.biz_code=100050 and k.new_buy_date is not null then 0 else a.share_qty*nvl ( p.last_price , 0 )  end trd_cost , 
+      'slg' source
+FROM rzqkgdb.share_log a inner join  rzqkgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                         left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+                         left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null  and new_buy_date > 20150101  )  k  on a.secu_intl=k.new_buy_code
+WHERE  a.sett_date=v_date_1
+   AND  (  biz_code IN  ( 151071 , 100050 , 151313 , 4600 , 100021 , 100022 , 100080 , 110030 , 120030 , 110040 , 110010 , 110020 , 120010 , 120020 , 120040 , 151014 , 
+        151011 , 130060 , 130065 , 140010 , 140020 , 140030 , 140040 , 140050 , 140060 , 171500 , 171540 , 171550 , 1125026 , 1125027 , 1125028 , 171510 , 100000 , 4800 , 
+        151244 , 100010 , 151012 , 151013 , 151240 , 151204 , 151106 , 151100 , 151101 , 151102 , 151020 , 151021 , 151022 , 151023 , 151016 , 151017 , 151018 , 151019 ) 
+        or  ( biz_code=104640 and remark not like '权益' )  )  ; 
+commit ; 
+
+
+
+---take mts flow
+execute immediate 'truncate table axuser_all_mts_flow_daily' ; 
+insert into axuser_all_mts_flow_daily
+select a.sett_date trd_date , a.cust_code , a.account , to_char ( a.secu_intl )  secu_intl , a.biz_code , a.cptl_amt mkt_val , a.source from axuser_all_mts_cptl_log_v0 a
+union all
+select b.sett_date trd_date , b.cust_code , b.account , to_char ( b.secu_intl )  secu_intl , b.biz_code , b.trd_cost mkt_val , b.source from axuser_all_mts_share_log_v0 b ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set all_mts_flow=sysdate where id=v_id ; 
+     commit ; 
+
+--take mts profit
+--mts_asset_vw 20190618
+execute immediate 'truncate table axuser_all_mts_profit_daily' ; 
+insert into axuser_all_mts_profit_daily
+select decode ( i.trd_date , null , cash.trd_date , i.trd_date )  trd_date , 
+       decode ( i.cust_code , null , cash.cust_code , i.cust_code )  cust_code , 
+       decode ( i.account , null , cash.account , i.account )  account , 
+       nvl ( i.end_amt , 0 )  end_amt , 
+       nvl ( i.pre_amt , 0 )  pre_amt , 
+       nvl ( cash.cash_flow_amt , 0 )  cash_flow_amt , 
+       nvl ( cash.positive_amt , 0 )  positive_amt , 
+       case when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 ) =0 then 0
+            when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  < 0 then -2
+       else
+       ( nvl ( end_amt , 0 ) +abs ( nvl ( cash.cash_flow_amt , 0 ) -nvl ( cash.positive_amt , 0 )  )  ) /decode ( nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  , 0 , 1 , nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  )  -1  end profit , 
+       ( nvl ( i.end_amt , 0 ) -nvl ( i.pre_amt , 0 ) -nvl ( cash.cash_flow_amt , 0 )  )  profit_amt from
+ ( select /*+parallel ( 16 ) */ decode ( t.trd_date , null , t_1.back_date , t.trd_date )  trd_date , 
+        decode ( t.cust_code , null , t_1.cust_code , t.cust_code )  cust_code , 
+        decode ( t.account , null , t_1.account , t.account )  account , 
+        nvl ( t.end_amt , 0 )  end_amt , 
+        nvl ( t_1.pre_amt , 0 )  pre_amt
+from
+ ( select a.trd_date , cust_code , account , sum ( mkt_val )  end_amt  from mts_asset_vw a
+join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_1
+group by a.trd_date , cust_code , account
+ )  t
+full join
+ ( select v_date_1 as back_date  , cust_code , account , sum ( mkt_val )  pre_amt from mts_asset_vw a
+join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_2
+ group by a.trd_date , cust_code , account )  t_1 on  ( t.trd_date=t_1.back_date and t.cust_code=t_1.cust_code and t.account=t_1.account )  ) i
+full  join
+ ( select a.trd_date , a.cust_code , a.account , sum ( a.mkt_val )  cash_flow_amt , sum ( case when a.mkt_val < =0 then 0 else a.mkt_val end )  as positive_amt from  axuser_all_mts_flow_daily a
+join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_1
+group by a.trd_date , a.cust_code , a.account )  cash on  ( i.trd_date=cash.trd_date and i.cust_code=cash.cust_code and i.account=cash.account )  ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set all_mts_prf=sysdate where id=v_id ; 
+     commit ; 
+
+--交易流水
+execute immediate 'truncate table axuser_mts_share_match_v00' ; 
+insert into axuser_mts_share_match_v00
+select a.trd_date , 
+       a.cust_code , 
+       a.account , 
+       a.secu_intl , 
+       a.trd_id biz_code , 
+        case when a.trd_id='4B' then abs ( a.sett_qty ) 
+            when a.trd_id in  ( '9B' , '9D' )  AND a.secu_cls='3' then 0
+       else a.sett_qty
+       end share_qty , 
+       case when a.trd_id in  ( '7R' , '7T' )  THEN  a.sett_qty*nvl ( p.last_price , 0 ) 
+            when a.trd_id in  ( '6S' , '5S' )  THEN  DECODE ( A.SETT_AMT , 0 , a.sett_qty*nvl ( p.last_price , 0 )  , -1*a.sett_amt ) 
+             when a.trd_id in  ( '9B' , '9D' )  AND a.secu_cls='3' then 0
+       else -1*a.sett_amt
+       end mkt_val , 
+       'mat' source , 
+       a.order_type , 
+       a.market , 
+       a.board , 
+       a.secu_acc , 
+      -- a.order_date trd_time , 
+     a.trd_date || ' ' || a.matched_time trd_time , 
+       z.trd_name biz_name , 
+       a.secu_code , 
+       a.secu_cls , 
+       a.matched_qty , 
+       a.matched_price , 
+       a.matched_amt , 
+     a.sett_qty , 
+       a.sett_amt
+  from rzqkgdb.h_matching a left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.trd_date=p.backup_date
+                            left join rzqkgdb.trade z on a.trd_id=z.trd_id
+ where a.trd_date =v_date_1
+   and  ( a.trd_id in  ( '0B' , '0S' , '1B' , '1S' , '2B' , '2S' , '4B' , '4C' , '4P' , '4Q' , '4R' , '4S' , '4T' , '5S' , '6S' , '6T' , '7B' , '7E' , '7J' , '7K' , '7L' , '7M' , '7N' , 
+       '7P' , '7Q' , '7R' , '7T' , '7U' , '7V' , '7W' , '7X' , '7Y' , '82' , '84' , '89' , '8B' , '9A' , '9B' , '9D' , '9E' , '9F' , '9G' , '9H' , '9O' , '9P' , '9Q' , '9S' , '9T' , 'G1' , 
+       'GA' , 'GB' , 'GS' , 'HB' , 'HS' , 'IB' , 'IS' , 'JB' , 'JS' , 'LB' , 'LS' , 'NB' , 'NG' , 'NS' , 'NT' , 'OB' , 'OS' , 'SB' , 'SG' , 'SS' , 'TB' , 'TS' , 'UB' , 'US' , 'VB' , 'VS' , 
+       'WB' , 'WS' , 'XB' , 'XS' , 'YB' , 'YS' , 'Z0' , 'Z1' , 'Z2' , 'Z3' , 'ZB' , 'ZC' , 'ZH' , '22' , '24' , '26' , '27' , '28' , '30' , '33' , '34' , '35' , '36' , '37' , '38' , '39' , 
+       '40' , '41' , '42' , '43' , '44' , '45' , '98' , 'X1' , 'HF' , 'EZ' , 'ZK' , 'ZM' , 'ZL' , 'SZ' , 'BX' , 'SX' , 'DB' , 'DS' , 'BF' , 'SF' , 'BC' , 'SC' , '9W' , 'QB' , 'QS' )      --去掉R1' , 'R2'  20190605
+        or  ( a.trd_id='ZA' and a.matched_qty=0 )  ) 
+--中签缴款日造一笔流水
+union all
+select a.pay_date trd_date , 
+       a.cust_code , 
+       a.account , 
+       a.secu_intl , 
+       '4640' biz_code , 
+       a.pay_qty share_qty , 
+       a.pay_amt mkt_val , 
+       'new' source , 
+       '00' order_type , 
+       a.market , 
+       a.board , 
+       a.secu_acc , 
+       --to_timestamp ( to_char ( a.pay_date )  , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+     to_char ( to_date ( to_char ( a.pay_date )  , 'yyyymmdd hh24:mi:ss' )  , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+       '新股申购 biz_name , 
+       s.secu_code , 
+       s.secu_cls , 
+       a.pay_qty matched_qty , 
+       a.order_price matched_price , 
+       a.pay_amt matched_amt , 
+     a.pay_qty sett_qty , 
+       a.pay_amt sett_amt
+  from rzqkgdb.ipo_handover a inner join trakgdb.securities s on a.secu_intl=s.secu_intl
+where pay_date =v_date_1 ; 
+commit ; 
+
+
+--非交易流水-151324股份上市 >  非限售股转流通
+--20191122 优化30010逻辑排除沪市股及科创板
+execute immediate 'truncate table axuser_mts_share_log_v00' ; 
+insert into axuser_mts_share_log_v00
+SELECT /*+parallel ( a , 16 ) */
+      a.sett_date trd_date , 
+      a.cust_code , 
+      a.account , 
+      a.secu_intl , 
+      to_char ( a.biz_code )  biz_code , 
+      a.share_qty , 
+      case when a.biz_code in  ( 5340 , 5000 )  then 0
+       else a.share_qty*nvl ( p.last_price , 0 ) 
+      end mkt_val , 
+      'slg' source , 
+    '00' order_type , 
+     b.market , 
+     b.board , 
+   a.secu_acc , 
+     --a.occur_date trd_time , 
+   to_char ( a.occur_date , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+     z.biz_name , 
+     b.secu_code , 
+     b.secu_cls , 
+     0 matched_qty , 
+     0 matched_price , 
+     0 matched_amt , 
+   a.share_qty sett_qty , 
+     a.trd_cost sett_amt
+FROM rzqkgdb.share_log a inner join  rzqkgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                         left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+             left join rzqkgdb.biz_setting z on a.biz_code=z.biz_code
+WHERE  a.sett_date =v_date_1
+   AND  (  a.biz_code IN  ( 151071 , 151012 , 100050 , 151013 , 151312 , 5340 , 4600 , 100021 , 100022 , 100080 , 110030 , 120030 , 110040 , 110010 , 110020 , 120010 , 120020 , 120040 , 
+       151014 , 151011 , 130060 , 130065 , 140010 , 140020 , 140030 , 140040 , 140050 , 140060 , 171500 , 171540 , 171550 , 1125026 , 1125027 , 1125028 , 171510 , 100000 , 5000 , 4800 , 
+       151244 , 151106 , 151100 , 151101 , 151102 , 100010 , 151020 , 151021 , 151022 , 151023 , 151016 , 151017 , 151018 , 151019 , 151240 , 151204 ) 
+       or  ( a.biz_code=104640 and a.remark not like '权益' )  or a.biz_code=130010  )     --增加发债转债的30010 20190511
+   minus
+  SELECT /*+parallel ( a , 16 ) */
+      a.sett_date trd_date , 
+      a.cust_code , 
+      a.account , 
+      a.secu_intl , 
+      to_char ( a.biz_code )  biz_code , 
+      a.share_qty , 
+      case when a.biz_code in  ( 5340 , 5000 )  then 0
+       else a.share_qty*nvl ( p.last_price , 0 ) 
+      end mkt_val , 
+      'slg' source , 
+    '00' order_type , 
+     b.market , 
+     b.board , 
+   a.secu_acc , 
+     --a.occur_date trd_time , 
+   to_char ( a.occur_date , 'yyyymmdd hh24:mi:ss' )  trd_time , 
+     z.biz_name , 
+     b.secu_code , 
+     b.secu_cls , 
+     0 matched_qty , 
+     0 matched_price , 
+     0 matched_amt , 
+   a.share_qty sett_qty , 
+     a.trd_cost sett_amt
+FROM rzqkgdb.share_log a inner join  rzqkgdb.securities b ON  a.secu_intl=b.secu_intl  and  b.mkt_val_flag='1'
+                         left join axuser_secu_price_v0 p on a.SECU_INTL=p.secu_intl and a.sett_date=p.backup_date
+             left join rzqkgdb.biz_setting z on a.biz_code=z.biz_code
+WHERE  a.sett_date =v_date_1
+   AND  ( a.biz_code=130010 and  (  ( b.secu_cls='0' and b.market='1' and b.board='0' )  or b.secu_cls='h' )  )  ; 
+commit ; 
+
+--沪市申购码替换
+--交易流水
+execute immediate 'truncate table axuser_mts_share_match_v0' ; 
+insert into axuser_mts_share_match_v0
+select a.trd_date , 
+       a.cust_code , 
+       a.account , 
+       case when  (  ( a.trd_date < b.ipo_date and a.trd_date > b.new_buy_date )  or  ( a.trd_date > b.new_buy_date and b.ipo_date is null )  ) 
+             and trading_code is not null
+           then b.trading_code
+           else
+             a.secu_intl
+         end secu_intl , 
+       a.biz_code , 
+       a.share_qty , 
+       a.mkt_val , 
+       a.source , 
+       a.order_type , 
+       a.market , 
+       a.board , 
+     a.secu_acc , 
+       a.trd_time , 
+       a.biz_name , 
+       a.secu_code , 
+       a.secu_cls , 
+       a.matched_qty , 
+       a.matched_price , 
+       a.matched_amt , 
+     a.sett_qty , 
+       a.sett_amt
+    from axuser_mts_share_match_v00 a left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null and new_buy_date > 20150101   )  b  on a.secu_intl=b.new_buy_code ; 
+commit ; 
+
+execute immediate 'truncate table axuser_mts_share_log_v0' ; 
+insert into axuser_mts_share_log_v0
+select a.trd_date , 
+       a.cust_code , 
+       a.account , 
+       case when  (  ( a.trd_date < b.ipo_date and a.trd_date > b.new_buy_date )  or  ( a.trd_date > b.new_buy_date and b.ipo_date is null )  ) 
+             and trading_code is not null
+           then b.trading_code
+           else
+             a.secu_intl
+         end secu_intl , 
+       a.biz_code , 
+       case when a.biz_code='100050' and b.new_buy_date is not null then 0 else a.share_qty end share_qty , 
+      case when a.biz_code='100050' and b.new_buy_date is not null then 0 else a.mkt_val end mkt_val , 
+       a.source , 
+     a.order_type , 
+     a.market , 
+     a.board , 
+   a.secu_acc , 
+     a.trd_time , 
+     a.biz_name , 
+     a.secu_code , 
+     a.secu_cls , 
+     a.matched_qty , 
+     a.matched_price , 
+     a.matched_amt , 
+   a.sett_qty , 
+     a.sett_amt
+from axuser_mts_share_log_v00 a left join  ( select * from axuser_new_stock_sh_v0 where new_buy_date is not null and new_buy_date > 20150101  )  b  on a.secu_intl=b.new_buy_code ; 
+commit ; 
+
+
+delete axuser_pro_mts_match_2020 where trd_date=v_date_1 ; 
+ commit ; 
+ /*insert into axuser_pro_mts_match select * from axuser_mts_share_match_v0 where trd_date=v_date_1 ; 
+ commit ; 
+ insert into axuser_pro_mts_match select * from axuser_mts_share_log_v0 where trd_date=v_date_1 ; 
+ commit ; */
+ insert into axuser_pro_mts_match_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source , order_type , 
+   market , board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_qty , matched_price , matched_amt , sett_qty , sett_amt ) 
+   select trd_date , cust_code , account , secu_intl , biz_code , sum ( share_qty )  , sum ( mkt_val )  , source , order_type , market , board , 
+          secu_acc , trd_time , biz_name , secu_code , secu_cls , sum ( matched_qty )  , matched_price , sum ( matched_amt )  , sum ( sett_qty )  , sum ( sett_amt ) 
+     from axuser_mts_share_match_v0
+  where trd_date=v_date_1
+ group by trd_date , cust_code , account , secu_intl , biz_code , source , order_type , market , 
+          board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_price ; 
+   commit ; 
+   insert into axuser_pro_mts_match_2020 ( trd_date , cust_code , account , secu_intl , biz_code , share_qty , mkt_val , source , order_type , 
+   market , board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_qty , matched_price , matched_amt , sett_qty , sett_amt ) 
+   select trd_date , cust_code , account , secu_intl , biz_code , sum ( share_qty )  , sum ( mkt_val )  , source , order_type , market , board , 
+          secu_acc , trd_time , biz_name , secu_code , secu_cls , sum ( matched_qty )  , matched_price , sum ( matched_amt )  , sum ( sett_qty )  , sum ( sett_amt ) 
+     from axuser_mts_share_log_v0
+  where trd_date=v_date_1
+ group by trd_date , cust_code , account , secu_intl , biz_code , source , order_type , market , 
+          board , secu_acc , trd_time , biz_name , secu_code , secu_cls , matched_price ; 
+   commit ; 
+
+--take mts capital log
+execute immediate 'truncate table axuser_pro_mts_cptl_log_v0' ; 
+insert into axuser_pro_mts_cptl_log_v0
+select a.sett_date , 
+       a.user_code cust_code , 
+       a.account , 
+       'cash_mts' secu_intl , 
+       0 share_qty , 
+       to_char ( a.biz_code )  biz_code , 
+       a.cptl_amt , 
+       'clg' source
+  from rzqkgdb.cptl_log  a
+ where a.sett_date =v_date_1
+   and a.biz_code in  ( 2000 , 2010 , 2020 , 2030 , 2100 , 2110 , 2120 , 2130 , 2230 , 2430 , 3000 , 3100 , 3101 , 3102 , 3110 , 3120 , 3121 , 3122 , 3123 , 3124 , 
+   3125 , 3130 , 3131 , 3140 , 3141 , 3142 , 3143 , 3160 , 3161 , 3200 , 3201 , 3210 , 3211 , 3220 , 3227 , 3228 , 3230 , 3235 , 3240 , 3500 , 4200 , 4210 , 4600 , 4610 , 4620 , 4630 , 
+   4640 , 4650 , 4670 , 4680 , 4681 , 4685 , 4690 , 4710 , 4720 , 4730 , 4740 , 4760 , 4765 , 4770 , 4785 , 4800 , 4805 , 4806 , 4810 , 4840 , 4865 , 4880 , 4900 , 5000 , 5010 , 5020 , 
+   5030 , 5150 , 5151 , 5153 , 5300 , 5310 , 5400 , 5440 , 5500 , 5501 , 5502 , 5503 , 5540 , 5590 , 5591 , 5594 , 5595 , 5596 , 5611 , 5664 , 5668 , 5669 , 5670 , 
+   5676 , 5677 , 5679 , 5681 , 5682 , 5683 , 5684 , 5690 , 5691 , 5697 , 6000 , 6209 , 6210 , 8000 , 8001 , 8006 , 8008 , 8024 , 8026 , 8030 , 8036 , 
+   8037 , 8038 , 8039 , 99999 , 100020 , 104640 , 105000 , 110030 , 110883 , 120030 , 120040 , 130030 , 130210 , 130230 , 130310 , 130330 , 140020 , 140050 , 140060 , 
+   1125020 , 1125022 , 1125024 , 1125030 , 1125039 , 1125042 , 1125043 , 1125049 , 1125050 , 7610 , 7620 , 7630 , 7710 , 7720 , 7730 )  ; 
+ commit ; 
+
+--take mts cash flow
+execute immediate 'truncate table axuser_pro_mts_flow_daily' ; 
+insert into axuser_pro_mts_flow_daily
+select a.trd_date , a.cust_code , a.account , to_char ( a.secu_intl )  secu_intl , a.biz_code , a.share_qty , a.mkt_val , a.source from axuser_mts_share_match_v0 a
+union all
+select b.trd_date , b.cust_code , b.account , to_char ( b.secu_intl )  secu_intl , b.biz_code , b.share_qty , b.mkt_val , b.source from axuser_mts_share_log_v0 b
+union all
+select d.sett_date trd_date , d.cust_code , d.account , to_char ( d.secu_intl )  secu_intl , d.biz_code , d.share_qty , d.cptl_amt mkt_val , d.source from axuser_pro_mts_cptl_log_v0 d ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set pro_mts_flow=sysdate where id=v_id ; 
+     commit ; 
+
+execute immediate 'truncate table QM_MTS_PRO_ASSET_DAILY' ; 
+insert into QM_MTS_PRO_ASSET_DAILY
+select a.trd_date , cust_code , account , to_char ( a.secu_intl )  secu_intl , case when secu_intl like '%cash%' then 'cash' else 'mts' end source , sum ( share_qty )  end_qty , sum ( mkt_val )  end_amt  from axuser_all_mts_share_daily a
+join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_1
+group by a.trd_date , cust_code , account , to_char ( a.secu_intl )  , case when secu_intl like '%cash%' then 'cash' else 'mts' end
+ ; 
+commit ; 
+
+execute immediate 'truncate table QC_MTS_PRO_ASSET_DAILY' ; 
+insert into QC_MTS_PRO_ASSET_DAILY
+select v_date_1 as back_date  , cust_code , account , to_char ( secu_intl )  secu_intl , case when secu_intl like '%cash%' then 'cash' else 'mts' end source , sum ( share_qty )  pre_qty , sum ( mkt_val )  pre_amt from axuser_mts_share_2020 a
+ join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_2
+ group by a.trd_date , cust_code , account , to_char ( secu_intl )  , case when secu_intl like '%cash%' then 'cash' else 'mts' end
+ ; 
+commit ; 
+
+execute immediate 'truncate table MTS_PRO_CASH_FLOW_DAILY' ; 
+insert into MTS_PRO_CASH_FLOW_DAILY
+select a.trd_date , a.cust_code , a.account , to_char ( secu_intl )  secu_intl  , sum ( share_qty )  cash_flow_qty , sum ( a.mkt_val )  cash_flow_amt , sum ( case when a.mkt_val < =0 then 0 else a.mkt_val end )  as positive_amt , 
+case when secu_intl like '%cash%' then 'cash' else 'mts' end source
+from  axuser_pro_mts_flow_daily a join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+where trd_date=v_date_1
+group by a.trd_date , a.cust_code , a.account , to_char ( secu_intl )  , case when secu_intl like '%cash%' then 'cash' else 'mts' end ; 
+commit ; 
+
+
+--take mts profit ( product+capital ) 
+execute immediate 'truncate table axuser_pro_mts_profit_daily' ; 
+insert into axuser_pro_mts_profit_daily
+select decode ( i.trd_date , null , cash.trd_date , i.trd_date )  trd_date , 
+       decode ( i.cust_code , null , cash.cust_code , i.cust_code )  cust_code , 
+       decode ( i.account , null , cash.account , i.account )  account , 
+       decode ( i.secu_intl , null , cash.secu_intl , i.secu_intl )  secu_intl , 
+       decode ( i.source , null , cash.source , i.source )  source , 
+       nvl ( i.end_qty , 0 )  end_qty , 
+       nvl ( i.pre_qty , 0 )  pre_qty , 
+       nvl ( cash.cash_flow_qty , 0 )  cash_flow_qty , 
+       nvl ( i.end_amt , 0 )  end_amt , 
+       nvl ( i.pre_amt , 0 )  pre_amt , 
+       nvl ( cash.cash_flow_amt , 0 )  cash_flow_amt , 
+       nvl ( cash.positive_amt , 0 )  positive_amt , 
+        ( nvl ( i.end_qty , 0 ) -nvl ( i.pre_qty , 0 ) -nvl ( cash.cash_flow_qty , 0 )  )  qty_exception , 
+        case when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 ) =0 then 0
+            when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  < 0 then -2
+       else
+       ( nvl ( end_amt , 0 ) +abs ( nvl ( cash.cash_flow_amt , 0 ) -nvl ( cash.positive_amt , 0 )  )  ) /decode ( nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  , 0 , 1 , nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  )  -1  end profit , 
+        ( nvl ( i.end_amt , 0 ) -nvl ( i.pre_amt , 0 ) -nvl ( cash.cash_flow_amt , 0 )  )  profit_amt from
+ ( select /*+parallel ( 16 ) */ decode ( t.trd_date , null , t_1.back_date , t.trd_date )  trd_date , 
+        decode ( t.cust_code , null , t_1.cust_code , t.cust_code )  cust_code , 
+        decode ( t.account , null , t_1.account , t.account )  account , 
+        decode ( t.secu_intl , null , t_1.secu_intl , t.secu_intl )  secu_intl , 
+        decode ( t.source , null , t_1.source , t.source )  source , 
+        nvl ( t.end_qty , 0 )  end_qty , 
+        nvl ( t_1.pre_qty , 0 )  pre_qty , 
+        nvl ( t.end_amt , 0 )  end_amt , 
+        nvl ( t_1.pre_amt , 0 )  pre_amt
+from
+QM_MTS_PRO_ASSET_DAILY t
+full join
+QC_MTS_PRO_ASSET_DAILY t_1 on  ( t.trd_date=t_1.back_date and t.cust_code=t_1.cust_code and t.account=t_1.account and t.secu_intl=t_1.secu_intl and t.source=t_1.source )  ) i
+full  join
+MTS_PRO_CASH_FLOW_DAILY cash on  ( i.trd_date=cash.trd_date and i.cust_code=cash.cust_code and i.account=cash.account and i.secu_intl=cash.secu_intl and i.source=cash.source )  ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set pro_mts_prf=sysdate where id=v_id ; 
+     commit ; 
+
+--take opt asset
+execute immediate 'truncate table axuser_all_opt_share_daily' ; 
+insert into axuser_all_opt_share_daily
+select a.trd_date , b.CUST_CODE , a.account , a.secu_intl , a.share_qty , a.mkt_val , a.source
+from
+ ( select ARCHIVE_DATE trd_date , CUACCT_CODE account , OPT_NUM secu_intl , sum ( opt_avl/1000 )  share_qty , SUM ( ABS ( OPT_MKT_VAL / 1000 )  )  mkt_val , 'opl' source
+           from RIDP_REPORT.HIS_OPT_ASSET_VW
+          WHERE ARCHIVE_DATE=v_date_1
+              AND OPT_SIDE in  ( 'L' ) 
+              AND OPT_PERIOD = 0
+            GROUP BY ARCHIVE_DATE , CUACCT_CODE , OPT_NUM
+ union all
+ select ARCHIVE_DATE trd_date ,  CUACCT_CODE account ,  OPT_NUM secu_intl , sum ( opt_avl/1000 )  share_qty , -SUM ( ABS ( OPT_MKT_VAL / 1000 )  )  mkt_val ,  'ops' source
+             from RIDP_REPORT.HIS_OPT_ASSET_VW
+            WHERE ARCHIVE_DATE=v_date_1
+              AND OPT_SIDE in  ( 'C' ,  'S' ) 
+              AND OPT_PERIOD = 0
+            GROUP BY ARCHIVE_DATE , CUACCT_CODE , OPT_NUM
+ union all
+ SELECT ARCHIVE_DATE trd_date , CUACCT_CODE account , 'cash_opt' secu_intl , 0 share_qty , FUND_BLN / 1000 mkt_val ,  'opc' source
+               FROM RIDP_REPORT.HIS_CUACCT_FUND_VW
+              WHERE ARCHIVE_DATE=v_date_1 ) a
+inner join  ( select * from optkbssoptsett.STK_TRDACCT where STKBD = 15 ) b on A.account = B.CUACCT_CODE
+ ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set opt_share=sysdate where id=v_id ; 
+     commit ; 
+
+--take cash flow
+execute immediate 'truncate table axuser_all_opt_flow_daily' ; 
+insert into axuser_all_opt_flow_daily
+select a.trd_date , a.cust_code , a.account , a.secu_intl , a.biz_code , a.mkt_val , a.source
+from
+     ( select ARCHIVE_DATE trd_date , cust_code , CUACCT_CODE account , 'cash_opt' secu_intl ,  CUBSB_TRD_ID biz_code , SUM ( BIZ_AMT )  / 1000 mkt_val , 'clg' source
+      from RIDP_REPORT.HIS_CUBSB_ITF_DATA_VW
+     where CUBSB_TRD_ID IN   ( '01' ,  '02' ,  '11' ,  '12' ,  '*1' ,  '*2' ) 
+       AND ARCHIVE_DATE=v_date_1
+     GROUP BY ARCHIVE_DATE , cust_code , CUACCT_CODE , CUBSB_TRD_ID ) a
+inner join  ( select * from optkbssoptsett.STK_TRDACCT where STKBD = 15 ) b on A.account = B.CUACCT_CODE
+ ; 
+commit ; 
+
+     --log
+     update axuser_prf_log set all_opt_flow=sysdate where id=v_id ; 
+     commit ; 
+
+--take all opt profit
+execute immediate 'truncate table axuser_all_opt_profit_daily' ; 
+insert into axuser_all_opt_profit_daily
+select decode ( i.trd_date , null , cash.trd_date , i.trd_date )  trd_date , 
+       decode ( i.cust_code , null , cash.cust_code , i.cust_code )  cust_code , 
+       decode ( i.account , null , cash.account , i.account )  account , 
+       nvl ( i.end_amt , 0 )  end_amt , 
+       nvl ( i.pre_amt , 0 )  pre_amt , 
+       nvl ( cash.cash_flow_amt , 0 )  cash_flow_amt , 
+       nvl ( cash.positive_amt , 0 )  positive_amt , 
+       case when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 ) =0 then 0
+            when nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  < 0 then -2
+       else
+        ( nvl ( end_amt , 0 ) +abs ( nvl ( cash.cash_flow_amt , 0 ) -nvl ( cash.positive_amt , 0 )  )  ) /decode ( nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  , 0 , 1 , nvl ( i.pre_amt , 0 )  +nvl ( cash.positive_amt , 0 )  )  -1  end profit , 
+        ( nvl ( i.end_amt , 0 ) -nvl ( i.pre_amt , 0 ) -nvl ( cash.cash_flow_amt , 0 )  )  profit_amt from
+  ( select /*+parallel ( 16 ) */ decode ( t.trd_date , null , t_1.back_date , t.trd_date )  trd_date , 
+         decode ( t.cust_code , null , t_1.cust_code , t.cust_code )  cust_code , 
+         decode ( t.account , null , t_1.account , t.account )  account , 
+         nvl ( t.end_amt , 0 )  end_amt , 
+         nvl ( t_1.pre_amt , 0 )  pre_amt
+    from
+  ( select a.trd_date , cust_code , account , sum ( mkt_val )  end_amt  from axuser_all_opt_share_daily a
+ join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+ where trd_date=v_date_1
+ group by a.trd_date , cust_code , account
+  )  t
+ full join
+  ( select v_date_1 as back_date  , cust_code , account , sum ( mkt_val )  pre_amt from axuser_opt_share_2020 a
+ join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+ where trd_date=v_date_2
+  group by a.trd_date , cust_code , account )  t_1 on  ( t.trd_date=t_1.back_date and t.cust_code=t_1.cust_code and t.account=t_1.account )  ) i
+ full  join
+  ( select a.trd_date , a.cust_code , a.account , sum ( a.mkt_val )  cash_flow_amt , sum ( case when a.mkt_val < =0 then 0 else a.mkt_val end )  as positive_amt from  axuser_all_opt_flow_daily a
+ join wndwind.tb_object_1010  b on a.trd_date=b.f1_1010
+ where trd_date=v_date_1
+ group by a.trd_date , a.cust_code , a.account )  cash on  ( i.trd_date=cash.trd_date and i.cust_code=cash.cust_code and i.account=cash.account )  ; 
+ commit ; 
+
+     --log
+     update axuser_prf_log set all_opt_prf=sysdate where id=v_id ; 
+     commit ; 
+    --log
+     update axuser_prf_log set finish_time=sysdate , finish_flag='Y' where id=v_id ; 
+     commit ; 
+
+  end if ; 
+  exception
+    when others then
+        rollback ; 
+
+
+
+end ; 

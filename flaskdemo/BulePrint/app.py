@@ -1,3 +1,5 @@
+
+
 from flask import Flask
 from flaskdemo.BulePrint import admin, user
 
@@ -11,11 +13,9 @@ app.register_blueprint(user)
 def index():
     return 'index'
 
-
 @app.route('/list')
 def index():
     return 'list'
-
 
 if __name__ == '__main__':
     print(app.url_map)
