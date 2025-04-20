@@ -64,7 +64,8 @@ def edit_skill_pvf():
                     line = file.readline()
                 if counter3 == 1:
                     try:
-                        val = int(int(line.strip("\t"))/25)
+                        # val = int(int(line.strip("\t"))/5)
+                        val = int(line)
                     except ValueError:
                         line = line
                     else:
@@ -117,11 +118,20 @@ def edit_skilltree_pvf():
                     position_x = position_list[3]
                     position_y = position_list[4]  # 因为前面有3个\t，下标4为第二个数字
                     if counter1 == 6:
-                        position_y = int(position_y) + 1000
+                        if i.endswith("_sp.co"):  # 普通技能
+                            position_y = int(position_y) + 1000
+                        elif i.endswith("_tp.co") :  # 特性技能
+                            position_y = int(position_y) + 300
                     if counter1 == 8:
-                        position_y = int(position_y) + 2000
+                        if i.endswith("_sp.co"):
+                            position_y = int(position_y) + 2000
+                        elif i.endswith("_tp.co") :
+                            position_y = int(position_y) + 600
                     if counter1 == 10:
-                        position_y = int(position_y) + 3000
+                        if i.endswith("_sp.co"):
+                            position_y = int(position_y) + 3000
+                        elif i.endswith("_tp.co") :
+                            position_y = int(position_y) + 900
                     line = "\t\t\t" + str(position_x) + "\t" + str(position_y).rstrip("\n") + "\n"
                     text2 = text2 + line
                     line = file.readline()

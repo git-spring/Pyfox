@@ -11,13 +11,13 @@ def funcGetLable(line):
         return None
 
 
-def editequpvf(path):
+def editequpvf(id,path):
     raritydroprate = {
-        0: 0,
+        0: 50,
         1: 50,
-        2: 300,
-        3: 400,
-        4: 500
+        2: 100,
+        3: 200,
+        4: 300
     }
     template_creationrate = '''[creation rate]
 \t%s
@@ -28,8 +28,11 @@ def editequpvf(path):
         label = ''
         filedata = ''
         rarity = 0
+        idx = 0
+        minlevel = ""
         skip = False
         find_creationrate = False
+        lastcreationrate = False
         line = equfile.readline()
         while line:
             if not line.strip():
@@ -50,6 +53,10 @@ def editequpvf(path):
                 if label == 'name':
                     # line = line.replace('(古老) ', '')
                     pass
+                elif label == 'minimum level':
+                    line = equfile.readline()
+                    minlevel = line
+                    print(minlevel)
                 elif label == 'rarity':
                     filedata = filedata + line
                     line = equfile.readline()
@@ -68,13 +75,19 @@ def editequpvf(path):
                     else:
                         line = str('\t%s\n' % line.strip())
                     lastcreationrate = True
+
             filedata = filedata + line
             line = equfile.readline()
+        text1 = id, path, minlevel, idx
+        # print(id, path, minlevel, idx,sep="\t")
+        if path.find("weapon")!=-1:  #  只需要武器
+            file1 = open("C:\\Users\\Spring\\Desktop\\Script\\equipment\\111.txt", 'a', encoding='utf-8')
+            file1.write(text1.__str__())
         if not find_creationrate:
             filedata = filedata.replace('[usable job]', template_creationrate % rarity)
 
     if not skip:
-        print(filedata)
+        # print(filedata)
         file = open(path, 'w', encoding='utf-8')
         file.write(filedata)
         file.close()
@@ -86,23 +99,24 @@ def readEquipmentList():
     continueuntil = False
 
     with open(file_name) as file_obj:
-        id = file_obj.readline().replace('\n', '')
-        path = path_prefix + file_obj.readline().replace('`', '').replace('\n', '')
-        while id and path:
-            skip = False
-            if id == '#PVF_File':    # 文件第一行,不需要处理
+        id = file_obj.readline().replace('\n', '')  # 装备代码
+        path = path_prefix + file_obj.readline().replace('`', '').replace('\n', '')  # 装备路径
+        while id and path:  # 当装备代码和装备路径都存在时,循环处理
+            skip = False  # 默认不跳过
+            if id == '#PVF_File':  # 文件第一行,不需要处理
                 skip = True
-            print(path)
-            if path.find('avatar') > -1 or path.find('creature')> -1:  # avatar 时装 character 人物(非宠物)  不需要修改
+            #print(path)
+            if path.find('avatar') > -1 or path.find('creature') > -1:  # avatar 时装 ,宠物  不需要修改
                 skip = True
-            if not os.path.exists(path) or continueuntil or skip:
+            if not os.path.exists(path) or continueuntil or skip:  # 当装备不存在或者不需要处理时, 继续读取下一个装备的代码和路径
                 id = file_obj.readline().replace('\n', '')
                 path = path_prefix + file_obj.readline().replace('`', '').replace('\n', '')
                 continue
             print('dealing----%s %s' % (id, path))
-            editequpvf(path)
-            id = file_obj.readline().replace('\n', '')
+            editequpvf(id,path)
+            id = file_obj.readline().replace('\n', '')  # 完成处理后,继续读取下一个装备的代码和路径
             path = path_prefix + file_obj.readline().replace('`', '').replace('\n', '')
+
 
 
 if '__main__' == __name__:

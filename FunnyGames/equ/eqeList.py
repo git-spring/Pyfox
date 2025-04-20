@@ -1,3 +1,5 @@
+# 统计装备的品级和等级，类型
+
 import re
 import os
 import os.path
@@ -23,26 +25,55 @@ def editequpvf(path):
 \t%s
 
 [usable job]'''
-    # 判断是否有标签，如果没有，则在最后面新增
-    # 读取之后存在在dict中, {tuple(标签排序,标签名,是否有结束标签):内容} , 最后再处理,再按排序拼接
+    text111 = ""
     with open(path, 'r', encoding='UTF-8') as equfile:
-        label = ''  # 标签
-        Text = ''
-        rarity = 0  # 装备品级
+        label = ''
+        filedata = ''
+        rarity = 0
         skip = False
-        dict1 ={}
-        find_creationrate = False  # 是否有 creation rate 标签
+        find_creationrate = False
+        lastcreationrate = False
         line = equfile.readline()
         while line:
-            print(line)
+            if not line.strip():
+                lastcreationrate = False
+                filedata = filedata + line
+                line = equfile.readline()
+                continue
             tmpLabel = funcGetLable(line)
+            if tmpLabel:
+                if lastcreationrate:
+                    lastcreationrate = False
+                    line = '\n%s' % line
+                label = tmpLabel
+                islabel = True
+            else:
+                islabel = False
+            if islabel:
+                if label == 'minimum level':
+                    pass
+
+                elif label == 'rarity':
+                    filedata = filedata + line
+                    line = equfile.readline()
+                    idx = int(line.strip())
+                    if idx < 5:
+                        rarity = raritydroprate[idx]
+                    else:
+                        skip = True
+                        break
+                elif label == 'creation rate':
+                    pass
+            filedata = filedata + line
             line = equfile.readline()
-            temptext = line
-            dict1[tmpLabel] =temptext
-            print("dict1 --- ",dict1)
-            line = False
+        if not find_creationrate:
+            filedata = filedata.replace('[usable job]', template_creationrate % rarity)
 
-
+    if not skip:
+        print(filedata)
+        file = open(path, 'w', encoding='utf-8')
+        file.write(filedata)
+        file.close()
 
 # 读取装备列表
 def readEquipmentList():

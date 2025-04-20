@@ -3,7 +3,7 @@
 # 将属性数据复制到skill_attributes.txt 文件中,运行本python 文件
 
 def edit_skill_attribute_pvf(position):
-    attribute_file = "E:\\05pythonProject\Pyfox\\funnygames\\pvf\\skill_attribute.txt"
+    attribute_file = "D:\\Eat\\05pythonProject\\Pyfox\\FunnyGames\\pvf\\skill_attribute.txt"
     print("开始处理：" + attribute_file)
     with open(attribute_file, 'r', encoding='UTF-8') as file:
         line = file.readline()
@@ -16,7 +16,7 @@ def edit_skill_attribute_pvf(position):
         while (idx < len(new_list)):
             if idx % int(group_num) == position - 1:
                 import math
-                new_line = new_line + "\t" + str(math.ceil(int(new_list[idx]) * 0.07))  # 对应位置上执行什么操作
+                new_line = new_line + "\t" + str(math.ceil(int(new_list[idx]) * 3))  # 对应位置上执行什么操作
             else:
                 new_line = new_line + "\t" + new_list[idx]
             idx += 1
@@ -35,4 +35,4 @@ dict={
 
 if '__main__' == __name__:
 
-    edit_skill_attribute_pvf(4)  # 需要修改第几个位置,就传入数字几
+    edit_skill_attribute_pvf(3)  # 需要修改第几个位置,就传入数字几
