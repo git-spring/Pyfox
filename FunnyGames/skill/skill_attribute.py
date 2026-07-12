@@ -3,7 +3,7 @@
 # 将属性数据复制到skill_attributes.txt 文件中,运行本python 文件
 
 def edit_skill_attribute_pvf(position):
-    attribute_file = "D:\\Eat\\05pythonProject\\Pyfox\\FunnyGames\\pvf\\skill_attribute.txt"
+    attribute_file = "D:\\Eat\\05pythonProject\\Pyfox\\FunnyGames\\skill\\skill_attribute.txt"
     print("开始处理：" + attribute_file)
     with open(attribute_file, 'r', encoding='UTF-8') as file:
         line = file.readline()
